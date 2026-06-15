@@ -1,0 +1,22 @@
+{
+  "name": "ai_test_automation_playwright",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KsiazekPatryk/AI_TEST_Automation_Playwright.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KsiazekPatryk/AI_TEST_Automation_Playwright/issues"
+  },
+  "homepage": "https://github.com/KsiazekPatryk/AI_TEST_Automation_Playwright#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^25.9.3"
+  }
+}
