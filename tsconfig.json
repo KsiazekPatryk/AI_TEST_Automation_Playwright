@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "paths": {
+      "@api/consts/*": ["./src/api/consts/*"],
+      "@api/requests/*": ["./src/api/requests/*"],
+      "@api/factories/*": ["./src/api/factories/*"],
+      "@api/models/*": ["./src/api/models/*"],
+      "@api/steps/*": ["./src/api/steps/*"],
+      "@ui/pages/*": ["./src/ui/pages/*"],
+      "@ui/components/*": ["./src/ui/components/*"],
+      "@ui/models/*": ["./src/ui/models/*"],
+      "@ui/factories/*": ["./src/ui/factories/*"],
+      "@data/*": ["./src/data/*"],
+      "@utils/*": ["./src/utils/*"],
+      "@fixtures/*": ["./src/fixtures/*"]
+    },
+    "types": ["node", "@playwright/test"],
+    "esModuleInterop": true,
+    "sourceMap": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*",
+    "tests/**/*",
+    "playwright.config.ts"
+  ]
+}

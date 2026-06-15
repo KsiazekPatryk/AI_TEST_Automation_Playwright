@@ -1,8 +1,8 @@
-
-# Playwright
+.env
 node_modules/
-/test-results/
-/playwright-report/
+playwright-report/
+test-results/
+.playwright-mcp/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/

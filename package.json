@@ -3,7 +3,17 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:list": "playwright test --list",
+    "test:ui": "playwright test tests/ui --project=ui",
+    "test:api": "playwright test tests/api --project=api",
+    "test:e2e": "playwright test tests/e2e --project=e2e",
+    "test:all": "playwright test --project=api --project=ui --project=e2e",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/KsiazekPatryk/AI_TEST_Automation_Playwright.git"
@@ -18,5 +28,18 @@
   "devDependencies": {
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.3"
+  },
+  "prettier": {
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true,
+    "endOfLine": "auto",
+    "printWidth": 120
+  },
+  "dependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "chalk": "^4.1.2",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
   }
 }
