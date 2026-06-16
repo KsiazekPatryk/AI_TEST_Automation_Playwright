@@ -1,21 +1,29 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@fixtures/test.fixture';
+import { URLS } from '@data/urls.const';
 
-test('search book by title returns filtered result for "effective java"', async ({ page }) => {
-  await page.goto('https://ksiegarnia.up.railway.app/');
+test.describe('Book listing page — search by title', { tag: ['@ui', '@search'] }, () => {
+  test('search for "effective java" returns exactly one filtered result with correct details', async ({
+    page,
+    bookListingPage,
+  }) => {
+    // Arrange
+    await page.goto(URLS.home);
 
-  await expect(page.getByRole('heading', { name: 'Available Books' })).toBeVisible();
-  await expect(page.locator('.book-card')).toHaveCount(29);
+    // Assert initial state
+    await expect(bookListingPage.heading).toBeVisible();
+    await expect(bookListingPage.bookCard.cards).toHaveCount(29);
 
-  await page.getByPlaceholder('Search books by title or author...').fill('effective java');
-  await page.getByRole('button', { name: '🔍' }).click();
+    // Act
+    await bookListingPage.searchBar.search('effective java');
 
-  await expect(page.locator('.book-card')).toHaveCount(1);
-
-  await expect(page.locator('.book-title')).toHaveText('Effective Java');
-  await expect(page.locator('.book-authors')).toHaveText('Joshua Bloch');
-  await expect(page.locator('.book-year')).toHaveText('2008');
-  await expect(page.locator('.book-price')).toHaveText('$107.28');
-  await expect(page.locator('.book-stock')).toHaveText('In stock: 100');
-  await expect(page.locator('.btn-add-cart')).toBeVisible();
-  await expect(page.locator('.btn-add-cart')).toBeEnabled();
+    // Assert filtered result
+    await expect(bookListingPage.bookCard.cards).toHaveCount(1);
+    await expect(bookListingPage.bookCard.title).toHaveText('Effective Java');
+    await expect(bookListingPage.bookCard.authors).toHaveText('Joshua Bloch');
+    await expect(bookListingPage.bookCard.year).toHaveText('2008');
+    await expect(bookListingPage.bookCard.price).toHaveText('$107.28');
+    await expect(bookListingPage.bookCard.stock).toHaveText('In stock: 100');
+    await expect(bookListingPage.bookCard.addToCartButton).toBeVisible();
+    await expect(bookListingPage.bookCard.addToCartButton).toBeEnabled();
+  });
 });
