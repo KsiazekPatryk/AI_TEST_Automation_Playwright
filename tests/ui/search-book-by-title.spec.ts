@@ -4,19 +4,19 @@ import { BOOKS, BOOK_CATALOG_TOTAL_COUNT } from '@data/books.const';
 test.describe('Book listing page - search by title', { tag: ['@ui', '@search'] }, () => {
   test.beforeEach(async ({ bookListingPage }) => {
     await bookListingPage.navigate();
-    await expect(bookListingPage.heading, 'book listing heading should be visible on load').toBeVisible();
   });
 
   test('should return one result with correct details when searching by exact book title', async ({
     bookListingPage,
   }) => {
-    // Assert initial state
+    // Arrange
+    await expect(bookListingPage.heading, 'book listing heading should be visible on load').toBeVisible();
     await expect(bookListingPage.bookCard.cards, 'full catalog should contain all books').toHaveCount(BOOK_CATALOG_TOTAL_COUNT);
 
     // Act
     await bookListingPage.searchBar.search(BOOKS.EFFECTIVE_JAVA.searchTerm);
 
-    // Assert filtered result
+    // Assert
     await expect(bookListingPage.bookCard.cards, 'search should return exactly one result').toHaveCount(1);
     await expect.soft(bookListingPage.bookCard.title, 'book title should match').toHaveText(BOOKS.EFFECTIVE_JAVA.title);
     await expect.soft(bookListingPage.bookCard.authors, 'author should match').toHaveText(BOOKS.EFFECTIVE_JAVA.author);
