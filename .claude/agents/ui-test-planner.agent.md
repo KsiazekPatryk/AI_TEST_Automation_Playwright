@@ -3,7 +3,7 @@ name: 🧠 UI Test Planner - Single Scenario - Automation Ready
 description: "Create a precise, automation-ready UI test plan for a single user-provided scenario using real application behavior. Focus: clarity, execution, and direct usability for Playwright test generation."
 model: sonnet
 
-tools: [vscode, execute, read, agent, edit, search, 'playwright/*', todo]
+tools: [vscode, execute, read, write, agent, edit, search, 'playwright/*', todo]
 
 ---
 
