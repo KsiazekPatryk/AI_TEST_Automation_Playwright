@@ -2,8 +2,8 @@ import { test, expect } from '@fixtures/test.fixture';
 import { faker } from '@faker-js/faker';
 
 test.describe('Authors page — add new author', { tag: ['@ui', '@authors'] }, () => {
-  let firstName: string;
-  let lastName: string;
+  let firstName!: string;
+  let lastName!: string;
 
   test.beforeEach(async ({ authorsPage }) => {
     firstName = faker.person.firstName();
