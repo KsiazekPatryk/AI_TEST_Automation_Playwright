@@ -1,4 +1,5 @@
 import { Page, Locator } from '@playwright/test';
+import { AuthorCardComponent } from '@ui/components/author-card.component';
 
 export class AuthorsPage {
   readonly heading: Locator;
@@ -14,6 +15,7 @@ export class AuthorsPage {
   }
 
   async navigate(): Promise<void> {
+    await this.page.goto('/');
     await this.authorsNavLink.click();
   }
 
@@ -31,5 +33,9 @@ export class AuthorsPage {
       .filter({ has: this.page.getByRole('heading', { name: `${firstName} ${lastName}`, level: 3 }) })
       .filter({ has: this.page.locator('button[title="Edit"]') })
       .last();
+  }
+
+  getAuthorCardComponent(firstName: string, lastName: string): AuthorCardComponent {
+    return new AuthorCardComponent(this.getAuthorCard(firstName, lastName));
   }
 }
