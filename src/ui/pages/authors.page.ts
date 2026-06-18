@@ -6,12 +6,14 @@ export class AuthorsPage {
   readonly addNewAuthorButton: Locator;
   readonly firstExistingAuthorHeading: Locator;
   readonly authorsNavLink: Locator;
+  readonly searchInput: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: '👥 Authors Management' });
     this.addNewAuthorButton = page.getByRole('button', { name: '➕ Add New Author' });
     this.firstExistingAuthorHeading = page.getByRole('heading', { level: 3 }).first();
     this.authorsNavLink = page.getByRole('link', { name: /^Authors/ });
+    this.searchInput = page.getByRole('textbox', { name: /Search by first name or last/ });
   }
 
   async navigate(): Promise<void> {
@@ -21,6 +23,10 @@ export class AuthorsPage {
 
   async openAddNewAuthorForm(): Promise<void> {
     await this.addNewAuthorButton.click();
+  }
+
+  async search(query: string): Promise<void> {
+    await this.searchInput.fill(query);
   }
 
   getAuthorHeading(firstName: string, lastName: string): Locator {

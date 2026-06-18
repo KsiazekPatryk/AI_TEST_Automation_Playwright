@@ -1,40 +1,55 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '@fixtures/test.fixture';
 import { faker } from '@faker-js/faker';
 
-test('should add a new book via Manage Books form and verify it appears in the table', async ({ page }) => {
-  const title = `${faker.word.adjective()} ${faker.word.noun()} Book`;
+test.describe('Books Management — add new book', { tag: ['@ui', '@books-management'] }, () => {
+  let firstName!: string;
+  let lastName!: string;
+  let bookTitle!: string;
 
-  // Navigate to Manage Books
-  await page.goto('/books-management');
+  test.beforeEach(async ({ authorsPage }) => {
+    firstName = faker.person.firstName();
+    lastName = faker.person.lastName();
+    bookTitle = faker.commerce.productName();
+    await authorsPage.navigate();
+  });
 
-  // Verify page loaded
-  await expect(page.getByRole('heading', { name: '📚 Books Management' })).toBeVisible();
+  test('should add a new author and a new book, then verify both appear', async ({
+    page,
+    authorsPage,
+    addNewAuthorForm,
+    booksManagementPage,
+    addNewBookForm,
+  }) => {
+    // --- Add new author ---
+    await expect(authorsPage.heading).toBeVisible();
+    await authorsPage.openAddNewAuthorForm();
+    await expect(addNewAuthorForm.panelHeading).toBeVisible();
+    await addNewAuthorForm.fillForm(firstName, lastName);
+    await addNewAuthorForm.submit();
+    await expect(addNewAuthorForm.panelHeading).not.toBeVisible({ timeout: 15000 });
 
-  // Open the Add New Book side panel
-  await page.getByRole('button', { name: '➕ Add New Book' }).click();
+    // Verify new author card is visible via search
+    await authorsPage.search(firstName);
+    await expect(authorsPage.getAuthorHeading(firstName, lastName)).toBeVisible();
 
-  // Scope all form interactions to the panel
-  const panel = page.locator('div').filter({ has: page.getByRole('heading', { name: '➕ Add New Book', level: 3 }) });
-  await expect(panel.getByRole('heading', { name: '➕ Add New Book', level: 3 })).toBeVisible();
+    // --- Navigate to Books Management and add new book ---
+    await booksManagementPage.navigate();
+    await expect(booksManagementPage.heading).toBeVisible();
+    await booksManagementPage.openAddNewBookForm();
+    await expect(addNewBookForm.panelHeading).toBeVisible();
 
-  // Fill the form
-  await panel.getByRole('textbox', { name: 'Title *' }).fill(title);
-  await panel.getByRole('spinbutton', { name: 'Year *' }).fill('2013');
-  await panel.getByRole('spinbutton', { name: 'Price ($) *' }).fill('79.99');
-  await panel.getByRole('spinbutton', { name: 'Available Quantity *' }).fill('50');
+    await addNewBookForm.fillForm(bookTitle, '100', '100');
+    await expect(addNewBookForm.getAuthorCheckbox(`${firstName} ${lastName}`)).toBeVisible();
+    await addNewBookForm.selectAuthor(`${firstName} ${lastName}`);
+    await addNewBookForm.submit();
 
-  // Select author — checkbox has no <label>, click parent div of the name text
-  await panel.getByText('Kent Beck', { exact: true }).locator('..').getByRole('checkbox').click();
+    // Verify success toast (Railway API can be slow on cold start)
+    await expect(page.getByText('Book added successfully!')).toBeVisible({ timeout: 15000 });
+    await expect(addNewBookForm.panelHeading).not.toBeVisible({ timeout: 15000 });
 
-  // Submit
-  await page.getByRole('button', { name: 'Add Book' }).click();
-
-  // Assert success toast
-  await expect(page.getByText('Book added successfully!')).toBeVisible();
-
-  // Assert panel closed (Railway API can be slow on cold start)
-  await expect(page.getByRole('heading', { name: '➕ Add New Book', level: 3 })).not.toBeVisible({ timeout: 15000 });
-
-  // Assert new row in table
-  await expect(page.getByRole('cell', { name: title })).toBeVisible();
+    // Verify new book row in table
+    await booksManagementPage.search(bookTitle);
+    await expect(booksManagementPage.getBookTitleCell(bookTitle)).toBeVisible();
+    await expect(booksManagementPage.getBookAuthorCell(`${firstName} ${lastName}`)).toBeVisible();
+  });
 });
