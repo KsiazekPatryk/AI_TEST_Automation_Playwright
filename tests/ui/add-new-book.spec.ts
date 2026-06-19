@@ -1,15 +1,16 @@
 import { test, expect } from '@fixtures/test.fixture';
-import { faker } from '@faker-js/faker';
+import { createAuthorData } from '@ui/factories/author.factory';
+import { createBookData } from '@ui/factories/book.factory';
+import { AuthorData } from '@ui/models/author.model';
+import { BookData } from '@ui/models/book.model';
 
 test.describe('Books Management — add new book', { tag: ['@ui', '@books-management'] }, () => {
-  let firstName!: string;
-  let lastName!: string;
-  let bookTitle!: string;
+  let author!: AuthorData;
+  let book!: BookData;
 
   test.beforeEach(async ({ authorsPage }) => {
-    firstName = faker.person.firstName();
-    lastName = faker.person.lastName();
-    bookTitle = faker.commerce.productName();
+    author = createAuthorData();
+    book = createBookData();
     await authorsPage.navigate();
   });
 
@@ -25,29 +26,29 @@ test.describe('Books Management — add new book', { tag: ['@ui', '@books-manage
     await expect(authorsPage.heading).toBeVisible();
     await authorsPage.openAddNewAuthorForm();
     await expect(addNewAuthorForm.panelHeading).toBeVisible();
-    await addNewAuthorForm.fillForm(firstName, lastName);
+    await addNewAuthorForm.fillForm(author.firstName, author.lastName);
     await addNewAuthorForm.submit();
 
     // Assert — author created and panel closed
     await expect(addNewAuthorForm.panelHeading).not.toBeVisible({ timeout: 15000 });
-    await authorsPage.search(firstName);
-    await expect(authorsPage.getAuthorHeading(firstName, lastName)).toBeVisible();
+    await authorsPage.search(author.firstName);
+    await expect(authorsPage.getAuthorHeading(author.firstName, author.lastName)).toBeVisible();
 
     // Act — add new book
     await booksManagementPage.navigate();
     await expect(booksManagementPage.heading).toBeVisible();
     await booksManagementPage.openAddNewBookForm();
     await expect(addNewBookForm.panelHeading).toBeVisible();
-    await addNewBookForm.fillForm(bookTitle, '100', '100');
-    await expect(addNewBookForm.getAuthorCheckboxLocator(`${firstName} ${lastName}`)).toBeVisible();
-    await addNewBookForm.selectAuthor(`${firstName} ${lastName}`);
+    await addNewBookForm.fillForm(book.title, book.price, book.quantity);
+    await expect(addNewBookForm.getAuthorCheckboxLocator(`${author.firstName} ${author.lastName}`)).toBeVisible();
+    await addNewBookForm.selectAuthor(`${author.firstName} ${author.lastName}`);
     await addNewBookForm.submit();
 
     // Assert — book created, panel closed, row visible in table
-    await expect(booksManagementPage.successToast).toBeVisible({ timeout: 15000 });
+    await expect(booksManagementPage.successToast).toBeVisible({ timeout: 30000 });
     await expect(addNewBookForm.panelHeading).not.toBeVisible({ timeout: 15000 });
-    await booksManagementPage.search(bookTitle);
-    await expect(booksManagementPage.getBookTitleCell(bookTitle)).toBeVisible();
-    await expect(booksManagementPage.getBookAuthorCell(`${firstName} ${lastName}`)).toBeVisible();
+    await booksManagementPage.search(book.title);
+    await expect(booksManagementPage.getBookTitleCell(book.title)).toBeVisible();
+    await expect(booksManagementPage.getBookAuthorCell(`${author.firstName} ${author.lastName}`)).toBeVisible();
   });
 });

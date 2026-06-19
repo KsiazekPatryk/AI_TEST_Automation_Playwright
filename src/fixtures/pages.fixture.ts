@@ -24,10 +24,7 @@ export const test = base.extend<Pages>({
     await use(new BooksManagementPage(page));
   },
   addNewAuthorForm: async ({ page }, use) => {
-    const root = page.locator('div').filter({
-      has: page.getByRole('heading', { name: /Add New Author/, level: 3 }),
-    });
-    await use(new AddNewAuthorFormComponent(root));
+    await use(new AddNewAuthorFormComponent(page));
   },
   addNewBookForm: async ({ page }, use) => {
     const root = page.locator('div').filter({
