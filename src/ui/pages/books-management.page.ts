@@ -4,11 +4,13 @@ export class BooksManagementPage {
   readonly heading: Locator;
   readonly addNewBookButton: Locator;
   readonly searchInput: Locator;
+  readonly successToast: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { name: /Books Management/ });
     this.addNewBookButton = page.getByRole('button', { name: '➕ Add New Book' });
     this.searchInput = page.getByRole('textbox', { name: /Search by title or author/ });
+    this.successToast = page.getByText('Book added successfully!');
   }
 
   async navigate(): Promise<void> {

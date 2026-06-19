@@ -19,7 +19,7 @@ export class AddNewBookFormComponent {
     this.cancelButton = root.getByRole('button', { name: 'Cancel' });
   }
 
-  getAuthorCheckbox(authorName: string): Locator {
+  getAuthorCheckboxLocator(authorName: string): Locator {
     return this.root
       .getByText(authorName, { exact: true })
       .locator('..')
@@ -33,7 +33,7 @@ export class AddNewBookFormComponent {
   }
 
   async selectAuthor(authorName: string): Promise<void> {
-    await this.getAuthorCheckbox(authorName).click();
+    await this.getAuthorCheckboxLocator(authorName).click();
   }
 
   async submit(): Promise<void> {
