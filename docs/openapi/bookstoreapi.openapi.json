@@ -1,0 +1,438 @@
+{
+  "openapi": "3.0.1",
+  "info": { "title": "OpenAPI definition", "version": "v0" },
+  "servers": [{ "url": "http://bookstoreapi.up.railway.app", "description": "Generated server url" }],
+  "paths": {
+    "/books/{id}": {
+      "get": {
+        "tags": ["books-controller"],
+        "operationId": "getById",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "*/*": { "schema": { "$ref": "#/components/schemas/Book" } } } }
+        }
+      },
+      "put": {
+        "tags": ["books-controller"],
+        "operationId": "updateBook",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateBookPayload" } } },
+          "required": true
+        },
+        "responses": { "200": { "description": "OK", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      },
+      "delete": {
+        "tags": ["books-controller"],
+        "operationId": "deleteById",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "patch": {
+        "tags": ["books-controller"],
+        "operationId": "partialUpdateBook",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "type": "object", "additionalProperties": { "type": "object" } } }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "OK", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/authors/{id}": {
+      "get": {
+        "tags": ["authors-controller"],
+        "operationId": "getById_1",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "*/*": { "schema": { "$ref": "#/components/schemas/Author" } } } }
+        }
+      },
+      "put": {
+        "tags": ["authors-controller"],
+        "operationId": "updateAuthor",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateAuthorPayload" } } },
+          "required": true
+        },
+        "responses": { "200": { "description": "OK", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      },
+      "delete": {
+        "tags": ["authors-controller"],
+        "operationId": "deleteById_1",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "patch": {
+        "tags": ["authors-controller"],
+        "operationId": "partialUpdateAuthor",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": { "schema": { "type": "object", "additionalProperties": { "type": "object" } } }
+          },
+          "required": true
+        },
+        "responses": { "200": { "description": "OK", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/orders": {
+      "get": {
+        "tags": ["orders-controller"],
+        "operationId": "getAllOrders",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/RichOrder" } } }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["orders-controller"],
+        "operationId": "createOrder",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateOrderPayload" } } },
+          "required": true
+        },
+        "responses": { "201": { "description": "Created", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/books": {
+      "get": {
+        "tags": ["books-controller"],
+        "operationId": "getAll",
+        "parameters": [
+          { "name": "title", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "author", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/RestBook" } } }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["books-controller"],
+        "operationId": "createBook",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateBookPayload" } } },
+          "required": true
+        },
+        "responses": { "201": { "description": "Created", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/authors": {
+      "get": {
+        "tags": ["authors-controller"],
+        "operationId": "getAll_1",
+        "parameters": [
+          { "name": "firstName", "in": "query", "required": false, "schema": { "type": "string" } },
+          { "name": "lastName", "in": "query", "required": false, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Author" } } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["authors-controller"],
+        "operationId": "createAuthor",
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/CreateAuthorPayload" } } },
+          "required": true
+        },
+        "responses": { "201": { "description": "Created", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/orders/{id}/status": {
+      "patch": {
+        "tags": ["orders-controller"],
+        "operationId": "updateOrderStatus",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UpdateStatusPayload" } } },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/RichOrder" } } }
+          }
+        }
+      }
+    },
+    "/books/{id}/cover": {
+      "delete": {
+        "tags": ["books-controller"],
+        "operationId": "removeBookCover",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": { "204": { "description": "No Content" } }
+      },
+      "patch": {
+        "tags": ["books-controller"],
+        "operationId": "updateBookCover",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "required": ["file"],
+                "type": "object",
+                "properties": { "file": { "type": "string", "format": "binary" } }
+              }
+            }
+          }
+        },
+        "responses": { "200": { "description": "OK", "content": { "*/*": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": ["root-controller"],
+        "operationId": "rootJson",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "type": "object", "additionalProperties": { "type": "string" } } } }
+          }
+        }
+      }
+    },
+    "/uploads/{id}": {
+      "get": {
+        "tags": ["uploads-controller"],
+        "operationId": "getUpload",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/UploadResponse" } } }
+          }
+        }
+      }
+    },
+    "/uploads/{id}/file": {
+      "get": {
+        "tags": ["uploads-controller"],
+        "operationId": "getUploadFile",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": { "description": "OK", "content": { "*/*": { "schema": { "type": "string", "format": "binary" } } } }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": ["orders-controller"],
+        "operationId": "getOrderById",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": { "*/*": { "schema": { "$ref": "#/components/schemas/RichOrder" } } }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["orders-controller"],
+        "operationId": "deleteOrder",
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "format": "int64" } }
+        ],
+        "responses": {
+          "204": { "description": "No Content", "content": { "*/*": { "schema": { "type": "string" } } } }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "UpdateBookPayload": {
+        "required": ["authors", "available", "price", "year"],
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "authors": { "uniqueItems": true, "type": "array", "items": { "type": "integer", "format": "int64" } },
+          "year": { "type": "integer", "format": "int32" },
+          "price": {
+            "maximum": 10000,
+            "exclusiveMaximum": false,
+            "minimum": 1,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "available": { "maximum": 10000, "minimum": 1, "type": "integer", "format": "int32" }
+        }
+      },
+      "UpdateAuthorPayload": {
+        "type": "object",
+        "properties": { "firstName": { "type": "string" }, "lastName": { "type": "string" } }
+      },
+      "CreateOrderItemPayload": {
+        "required": ["bookId", "quantity"],
+        "type": "object",
+        "properties": {
+          "bookId": { "type": "integer", "format": "int64" },
+          "quantity": { "minimum": 1, "type": "integer", "format": "int32" }
+        }
+      },
+      "CreateOrderPayload": {
+        "required": ["items", "recipient"],
+        "type": "object",
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/CreateOrderItemPayload" } },
+          "recipient": { "$ref": "#/components/schemas/CreateRecipientPayload" }
+        }
+      },
+      "CreateRecipientPayload": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string" },
+          "phone": { "type": "string" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "zipCode": { "type": "string" },
+          "email": { "type": "string" }
+        }
+      },
+      "CreateBookPayload": {
+        "required": ["authors", "available", "price", "year"],
+        "type": "object",
+        "properties": {
+          "title": { "type": "string" },
+          "authors": { "uniqueItems": true, "type": "array", "items": { "type": "integer", "format": "int64" } },
+          "year": { "type": "integer", "format": "int32" },
+          "price": {
+            "maximum": 1000,
+            "exclusiveMaximum": false,
+            "minimum": 0.01,
+            "exclusiveMinimum": false,
+            "type": "number"
+          },
+          "available": { "maximum": 10000, "minimum": 1, "type": "integer", "format": "int32" }
+        }
+      },
+      "CreateAuthorPayload": {
+        "type": "object",
+        "properties": { "firstName": { "type": "string" }, "lastName": { "type": "string" } }
+      },
+      "UpdateStatusPayload": {
+        "required": ["status"],
+        "type": "object",
+        "properties": { "status": { "type": "string" } }
+      },
+      "Author": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" }
+        }
+      },
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "title": { "type": "string" },
+          "year": { "type": "integer", "format": "int32" },
+          "price": { "type": "number" },
+          "coverId": { "type": "integer", "format": "int64" },
+          "available": { "type": "integer", "format": "int32" },
+          "authors": { "uniqueItems": true, "type": "array", "items": { "$ref": "#/components/schemas/Author" } }
+        }
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "book": { "$ref": "#/components/schemas/Book" },
+          "quantity": { "type": "integer", "format": "int32" }
+        }
+      },
+      "Recipient": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "name": { "type": "string" },
+          "phone": { "type": "string" },
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "zipCode": { "type": "string" },
+          "email": { "type": "string" }
+        }
+      },
+      "RichOrder": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "status": { "type": "string", "enum": ["NEW", "PAID", "CANCELED", "ABANDONED", "SHIPPED"] },
+          "items": { "uniqueItems": true, "type": "array", "items": { "$ref": "#/components/schemas/OrderItem" } },
+          "recipient": { "$ref": "#/components/schemas/Recipient" }
+        }
+      },
+      "UploadResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "contentType": { "type": "string" },
+          "filename": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RestAuthor": {
+        "type": "object",
+        "properties": { "firstName": { "type": "string" }, "lastName": { "type": "string" } }
+      },
+      "RestBook": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "title": { "type": "string" },
+          "year": { "type": "integer", "format": "int32" },
+          "price": { "type": "number" },
+          "coverUrl": { "type": "string" },
+          "available": { "type": "integer", "format": "int32" },
+          "authors": { "uniqueItems": true, "type": "array", "items": { "$ref": "#/components/schemas/RestAuthor" } }
+        }
+      }
+    }
+  }
+}
