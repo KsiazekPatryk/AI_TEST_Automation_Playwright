@@ -1,113 +1,110 @@
 import { test, expect } from '@fixtures/test.fixture';
+import { API_ENDPOINTS } from '@api/consts/api.endpoints.const';
+import { AuthorResponse } from '@api/models/author.model';
+import { getRandomAuthorPayload } from '@api/factories/author.factory';
+import { parseResponse } from '@utils/parse.response.utils';
+import {
+  HTTP_200_OK,
+  HTTP_405_METHOD_NOT_ALLOWED,
+  HTTP_406_NOT_ACCEPTABLE,
+} from '@api/consts/http.status.codes.const';
 
-const API_URL = 'https://fakerestapi.azurewebsites.net';
+test.describe('GET /authors — negative scenarios @api @authors @regression', () => {
+  // TC-NEG-003 requires Jane Doe and John Smith to exist so that:
+  //   firstName=Jane       → returns Jane Doe   (Jane exists as a first name)
+  //   lastName=Smith       → returns John Smith  (Smith exists as a last name)
+  //   firstName=Jane&lastName=Smith → [] (no author named Jane Smith)
+  let janeDoeId: number | undefined;
+  let johnSmithId: number | undefined;
 
-// NOTE: fakerestapi.azurewebsites.net does NOT support query parameter filtering.
-// TC-NEG-001, 002, 003 verify the endpoint accepts filter params without error (200 + array).
-// The API returns all authors regardless of filter values — empty array assertions are omitted.
+  test.beforeAll(async ({ authorsApiSteps }) => {
+    const janeDoe = await authorsApiSteps.create(getRandomAuthorPayload({ firstName: 'Jane', lastName: 'Doe' }));
+    janeDoeId = janeDoe.id;
 
-test('TC-NEG-001: GET /authors with non-matching firstName returns 200 and an array', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { firstName: '__nonexistent_xyz_12345__' },
+    const johnSmith = await authorsApiSteps.create(getRandomAuthorPayload({ firstName: 'John', lastName: 'Smith' }));
+    johnSmithId = johnSmith.id;
   });
 
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-
-  expect(Array.isArray(body)).toBeTruthy();
-  // API does not filter — all authors are returned; no author has this firstName
-  expect(body.every((a: { firstName: string | null }) => a.firstName !== '__nonexistent_xyz_12345__')).toBeTruthy();
-});
-
-test('TC-NEG-002: GET /authors with non-matching lastName returns 200 and an array', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { lastName: '__nonexistent_xyz_12345__' },
+  test.afterAll(async ({ authorsApiSteps }) => {
+    if (janeDoeId !== undefined) {
+      await authorsApiSteps.delete(janeDoeId);
+      janeDoeId = undefined;
+    }
+    if (johnSmithId !== undefined) {
+      await authorsApiSteps.delete(johnSmithId);
+      johnSmithId = undefined;
+    }
   });
 
-  expect(response.status()).toBe(200);
+  test('should return 200 and empty array when firstName filter matches no author', async ({ authorsApiRequest }) => {
+    const response = await authorsApiRequest.getAll({ firstName: '__nonexistent_xyz_12345__' });
 
-  const body = await response.json();
+    expect(response.status()).toBe(HTTP_200_OK);
 
-  expect(Array.isArray(body)).toBeTruthy();
-  expect(body.every((a: { lastName: string | null }) => a.lastName !== '__nonexistent_xyz_12345__')).toBeTruthy();
-});
+    const body = await parseResponse<AuthorResponse[]>(response);
 
-test('TC-NEG-003: GET /authors with non-matching firstName+lastName combination returns 200 and an array', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { firstName: 'Jane', lastName: 'Smith' },
+    expect(Array.isArray(body)).toBeTruthy();
+    expect(body).toEqual([]);
   });
 
-  expect(response.status()).toBe(200);
+  test('should return 200 and empty array when lastName filter matches no author', async ({ authorsApiRequest }) => {
+    const response = await authorsApiRequest.getAll({ lastName: '__nonexistent_xyz_12345__' });
 
-  const body = await response.json();
+    expect(response.status()).toBe(HTTP_200_OK);
 
-  expect(Array.isArray(body)).toBeTruthy();
-  // No seeded author has firstName=Jane AND lastName=Smith
-  expect(body.every((a: { firstName: string | null; lastName: string | null }) => !(a.firstName === 'Jane' && a.lastName === 'Smith'))).toBeTruthy();
-});
+    const body = await parseResponse<AuthorResponse[]>(response);
 
-test('TC-NEG-004: GET /authors with unknown query param returns 200 and a non-empty array', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { foo: 'bar' },
+    expect(Array.isArray(body)).toBeTruthy();
+    expect(body).toEqual([]);
   });
 
-  expect(response.status()).not.toBe(500);
-  expect(response.status()).toBe(200);
+  test('should return 200 and empty array when combined firstName+lastName filter matches no author', async ({ authorsApiRequest }) => {
+    const response = await authorsApiRequest.getAll({ firstName: 'Jane', lastName: 'Smith' });
 
-  const body = await response.json();
+    expect(response.status()).toBe(HTTP_200_OK);
 
-  expect(Array.isArray(body)).toBeTruthy();
-  expect(body.length).toBeGreaterThan(0);
-});
+    const body = await parseResponse<AuthorResponse[]>(response);
 
-test('TC-NEG-005: DELETE /authors collection (no ID) returns 405', async ({ request }) => {
-  const response = await request.delete(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
+    expect(Array.isArray(body)).toBeTruthy();
+    expect(body).toEqual([]);
   });
 
-  expect(response.status()).toBe(405);
-});
+  test('should return 200 and non-empty array when unknown query param is provided', async ({ authorsApiRequest }) => {
+    const response = await authorsApiRequest.getAll({ foo: 'bar' });
 
-test('TC-NEG-006: PUT /authors collection (no ID) returns 405', async ({ request }) => {
-  const response = await request.put(`${API_URL}/api/v1/Authors`, {
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-    data: { firstName: 'Test', lastName: 'Author' },
+    expect(response.status()).toBe(HTTP_200_OK);
+
+    const body = await parseResponse<AuthorResponse[]>(response);
+
+    expect(Array.isArray(body)).toBeTruthy();
+    expect(body.length).toBeGreaterThan(0);
   });
 
-  expect(response.status()).toBe(405);
-});
+  test('should return 405 when DELETE is sent to /authors collection without an id', async ({ apiRequest }) => {
+    const response = await apiRequest.delete(API_ENDPOINTS.authors.base);
 
-test('TC-NEG-007: GET /authors with Accept: application/xml falls back to application/json (not 500)', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/xml' },
+    expect(response.status()).toBe(HTTP_405_METHOD_NOT_ALLOWED);
   });
 
-  expect(response.status()).not.toBe(500);
-  // This API falls back to application/json instead of returning 406
-  expect(response.status()).toBe(200);
+  test('should return 405 when PUT is sent to /authors collection without an id', async ({ apiRequest }) => {
+    const response = await apiRequest.put(API_ENDPOINTS.authors.base, getRandomAuthorPayload());
 
-  const contentType = response.headers()['content-type'];
-
-  expect(contentType).toContain('application/json');
-});
-
-test('TC-NEG-008: GET /authors with empty firstName param returns 200 and an array', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors?firstName=`, {
-    headers: { Accept: 'application/json' },
+    expect(response.status()).toBe(HTTP_405_METHOD_NOT_ALLOWED);
   });
 
-  expect(response.status()).not.toBe(500);
-  expect(response.status()).toBe(200);
+  test('should return 406 when Accept: application/xml header is sent', async ({ apiRequest }) => {
+    const response = await apiRequest.get(API_ENDPOINTS.authors.base, undefined, { Accept: 'application/xml' });
 
-  const body = await response.json();
+    expect(response.status()).toBe(HTTP_406_NOT_ACCEPTABLE);
+  });
 
-  expect(Array.isArray(body)).toBeTruthy();
+  test('should return 200 and an array when firstName query param is an empty string', async ({ authorsApiRequest }) => {
+    const response = await authorsApiRequest.getAll({ firstName: '' });
+
+    expect(response.status()).toBe(HTTP_200_OK);
+
+    const body = await parseResponse<AuthorResponse[]>(response);
+
+    expect(Array.isArray(body)).toBeTruthy();
+  });
 });
