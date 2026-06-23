@@ -1,22 +1,22 @@
 import { test as base } from '@playwright/test';
 import { APIRequest } from '@api/requests/api.request';
-// import { ResourceAPIRequest } from '@api/requests/resource/resource.api.request';
-// import { ResourceAPISteps } from '@api/steps/resource/resource.api.steps';
+import { AuthorsAPIRequest } from '@api/requests/authors/authors.api.request';
+import { AuthorsAPISteps } from '@api/steps/authors/authors.api.steps';
 
 type ApiFixtures = {
   apiRequest: APIRequest;
-  // resourceApiRequest: ResourceAPIRequest;
-  // resourceApiSteps: ResourceAPISteps;
+  authorsApiRequest: AuthorsAPIRequest;
+  authorsApiSteps: AuthorsAPISteps;
 };
 
 export const test = base.extend<ApiFixtures>({
   apiRequest: async ({ request }, use) => {
     await use(new APIRequest(request));
   },
-  // resourceApiRequest: async ({ apiRequest }, use) => {
-  //   await use(new ResourceAPIRequest(apiRequest));
-  // },
-  // resourceApiSteps: async ({ resourceApiRequest }, use) => {
-  //   await use(new ResourceAPISteps(resourceApiRequest));
-  // },
+  authorsApiRequest: async ({ apiRequest }, use) => {
+    await use(new AuthorsAPIRequest(apiRequest));
+  },
+  authorsApiSteps: async ({ authorsApiRequest }, use) => {
+    await use(new AuthorsAPISteps(authorsApiRequest));
+  },
 });

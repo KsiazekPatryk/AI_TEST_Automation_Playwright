@@ -1,157 +1,107 @@
 import { test, expect } from '@fixtures/test.fixture';
+import { getRandomAuthorPayload } from '@api/factories/author.factory';
+import { AuthorResponse } from '@api/models/author.model';
 
-const API_URL = 'https://fakerestapi.azurewebsites.net';
+test.describe('GET /authors — positive scenarios @api @authors', () => {
+  let authorA: AuthorResponse;
+  let authorB: AuthorResponse;
 
-// NOTE: fakerestapi.azurewebsites.net does NOT persist POST data in GET /authors.
-// TC-POS-002/003/004/005/007 use seeded data (pre-populated by the API) instead.
-
-test('TC-POS-001: GET /authors without query params returns HTTP 200 and an array', async ({ request }) => {
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
+  test.beforeAll(async ({ authorsApiSteps }) => {
+    authorA = await authorsApiSteps.create({ firstName: 'Jane', lastName: 'Doe' });
+    authorB = await authorsApiSteps.create({ firstName: 'John', lastName: 'Smith' });
   });
 
-  expect(response.status()).toBe(200);
-
-  const body = await response.json();
-
-  expect(Array.isArray(body)).toBeTruthy();
-});
-
-test('TC-POS-002: A known author appears in GET /authors full listing', async ({ request }) => {
-  // Get a specific seeded author by ID, then verify it appears in the full listing
-  const singleResponse = await request.get(`${API_URL}/api/v1/Authors/1`);
-
-  expect(singleResponse.status()).toBe(200);
-
-  const seededAuthor = await singleResponse.json();
-  const capturedId: number = seededAuthor.id;
-  const capturedFirstName: string = seededAuthor.firstName;
-  const capturedLastName: string = seededAuthor.lastName;
-
-  const listResponse = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
+  test.afterAll(async ({ authorsApiSteps }) => {
+    await authorsApiSteps.delete(authorA.id);
+    await authorsApiSteps.delete(authorB.id);
   });
 
-  expect(listResponse.status()).toBe(200);
+  test('TC-POS-001: should return HTTP 200 and an array for a plain request @smoke', async ({ authorsApiSteps }) => {
+    const authors = await authorsApiSteps.getAll();
 
-  const body = await listResponse.json();
-  const found = body.find((a: { id: number }) => a.id === capturedId);
-
-  expect(found).toBeDefined();
-  expect(found.id).toBe(capturedId);
-  expect(found.firstName).toBe(capturedFirstName);
-  expect(found.lastName).toBe(capturedLastName);
-});
-
-test('TC-POS-003: GET /authors with firstName query param returns 200 and a non-empty array', async ({ request }) => {
-  // NOTE: fakerestapi does not filter by query params — it returns all authors.
-  // This test verifies the endpoint accepts the param without error and the seeded author is present.
-  const filterFirstName = 'First Name 1';
-
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { firstName: filterFirstName },
+    expect(Array.isArray(authors)).toBeTruthy();
   });
 
-  expect(response.status()).toBe(200);
+  test('TC-POS-002: should include a newly created author in the GET /authors listing @regression', async ({ authorsApiSteps }) => {
+    const authors = await authorsApiSteps.getAll();
+    const found = authors.find(a => a.id === authorA.id);
 
-  const body = await response.json();
-
-  expect(Array.isArray(body)).toBeTruthy();
-  expect(body.length).toBeGreaterThan(0);
-  expect(body.some((a: { firstName: string }) => a.firstName === filterFirstName)).toBeTruthy();
-});
-
-test('TC-POS-004: GET /authors with lastName query param returns 200 and a non-empty array', async ({ request }) => {
-  // NOTE: fakerestapi does not filter by query params — it returns all authors.
-  // This test verifies the endpoint accepts the param without error and the seeded author is present.
-  const filterLastName = 'Last Name 1';
-
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { lastName: filterLastName },
+    expect(found, 'created author should appear in listing').toBeDefined();
+    expect(found!.firstName).toBe(authorA.firstName);
+    expect(found!.lastName).toBe(authorA.lastName);
   });
 
-  expect(response.status()).toBe(200);
+  test('TC-POS-003: should return only authors matching the firstName filter @regression', async ({ authorsApiSteps }) => {
+    const authors = await authorsApiSteps.getAll({ firstName: 'Jane' });
 
-  const body = await response.json();
-
-  expect(Array.isArray(body)).toBeTruthy();
-  expect(body.length).toBeGreaterThan(0);
-  expect(body.some((a: { lastName: string }) => a.lastName === filterLastName)).toBeTruthy();
-});
-
-test('TC-POS-005: GET /authors with firstName and lastName query params returns 200 and a non-empty array', async ({ request }) => {
-  // NOTE: fakerestapi does not filter by query params — it returns all authors.
-  // This test verifies the endpoint accepts both params without error and the seeded author is present.
-  const filterFirstName = 'First Name 1';
-  const filterLastName = 'Last Name 1';
-
-  const response = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-    params: { firstName: filterFirstName, lastName: filterLastName },
+    expect(authors.length).toBeGreaterThan(0);
+    expect(authors.some(a => a.firstName === 'Jane'), 'Author A (Jane Doe) should be in results').toBeTruthy();
+    expect(
+      authors.every(a => a.firstName !== 'John'),
+      'Author B (John Smith) should be excluded by firstName=Jane filter',
+    ).toBeTruthy();
   });
 
-  expect(response.status()).toBe(200);
+  test('TC-POS-004: should return only authors matching the lastName filter @regression', async ({ authorsApiSteps }) => {
+    const authors = await authorsApiSteps.getAll({ lastName: 'Doe' });
 
-  const body = await response.json();
-
-  expect(Array.isArray(body)).toBeTruthy();
-  expect(body.length).toBeGreaterThan(0);
-  expect(body.some((a: { firstName: string; lastName: string }) => a.firstName === filterFirstName && a.lastName === filterLastName)).toBeTruthy();
-});
-
-test('TC-POS-006: Two consecutive GET /authors calls return consistent results (idempotency)', async ({ request }) => {
-  const response1 = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
-  });
-  const response2 = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
+    expect(authors.length).toBeGreaterThan(0);
+    expect(authors.some(a => a.lastName === 'Doe'), 'Author A (Jane Doe) should be in results').toBeTruthy();
+    expect(
+      authors.every(a => a.lastName !== 'Smith'),
+      'Author B (John Smith) should be excluded by lastName=Doe filter',
+    ).toBeTruthy();
   });
 
-  expect(response1.status()).toBe(200);
-  expect(response2.status()).toBe(200);
+  test('TC-POS-005: should return only the author matching both firstName and lastName filters @regression', async ({ authorsApiSteps }) => {
+    // Create a second Jane to confirm firstName=Jane alone would return both
+    const janeSmith = await authorsApiSteps.create({ firstName: 'Jane', lastName: 'Smith' });
 
-  const body1 = await response1.json();
-  const body2 = await response2.json();
+    try {
+      const authors = await authorsApiSteps.getAll({ firstName: 'Jane', lastName: 'Doe' });
 
-  // Both calls return non-empty arrays — exact count may vary on shared API
-  expect(body1.length).toBeGreaterThan(0);
-  expect(body2.length).toBeGreaterThan(0);
-});
-
-test('TC-POS-007: Deleted author no longer appears in GET /authors listing', async ({ request }) => {
-  const listResponse = await request.get(`${API_URL}/api/v1/Authors`);
-
-  expect(listResponse.status()).toBe(200);
-
-  const allAuthors: Array<{ id: number; firstName: string | null }> = await listResponse.json();
-
-  expect(allAuthors.length).toBeGreaterThan(0);
-
-  // Seeded authors follow the "First Name X" pattern and cannot be deleted on this shared API.
-  // User-created authors (by other API users) can be deleted. Look for one.
-  const target = allAuthors.find(a => a.firstName && !a.firstName.startsWith('First Name '));
-
-  if (!target) {
-    // No user-created authors available right now — skip gracefully
-    test.skip(true, 'No deletable (user-created) authors found on the shared API at this time');
-    return;
-  }
-
-  const capturedId = target.id;
-
-  const deleteResponse = await request.delete(`${API_URL}/api/v1/Authors/${capturedId}`);
-
-  expect(deleteResponse.status()).toBe(200);
-
-  const afterResponse = await request.get(`${API_URL}/api/v1/Authors`, {
-    headers: { Accept: 'application/json' },
+      expect(authors.length).toBeGreaterThan(0);
+      expect(
+        authors.some(a => a.firstName === 'Jane' && a.lastName === 'Doe'),
+        'Author A (Jane Doe) should be in results',
+      ).toBeTruthy();
+      expect(
+        authors.every(a => a.lastName !== 'Smith'),
+        'Jane Smith should be excluded by lastName=Doe filter',
+      ).toBeTruthy();
+    } finally {
+      await authorsApiSteps.delete(janeSmith.id);
+    }
   });
 
-  expect(afterResponse.status()).toBe(200);
+  test('TC-POS-006: should return consistent results across two consecutive GET /authors calls @smoke', async ({ authorsApiSteps }) => {
+    const authors1 = await authorsApiSteps.getAll();
+    const authors2 = await authorsApiSteps.getAll();
 
-  const bodyAfter = await afterResponse.json();
+    expect(authors1.length).toBeGreaterThan(0);
+    expect(authors2.length).toBeGreaterThan(0);
 
-  expect(bodyAfter.every((a: { id: number }) => a.id !== capturedId)).toBeTruthy();
+    // Verify GET is idempotent: setup authors are present in both calls
+    const ids1 = new Set(authors1.map(a => a.id));
+    const ids2 = new Set(authors2.map(a => a.id));
+
+    expect(ids1.has(authorA.id), 'authorA should appear in first call').toBeTruthy();
+    expect(ids2.has(authorA.id), 'authorA should appear in second call').toBeTruthy();
+    expect(ids1.has(authorB.id), 'authorB should appear in first call').toBeTruthy();
+    expect(ids2.has(authorB.id), 'authorB should appear in second call').toBeTruthy();
+  });
+
+  test('TC-POS-007: should not include a deleted author in the GET /authors listing @regression', async ({ authorsApiSteps }) => {
+    const created = await authorsApiSteps.create(getRandomAuthorPayload());
+    const capturedId = created.id;
+
+    await authorsApiSteps.delete(capturedId);
+
+    const authors = await authorsApiSteps.getAll();
+
+    expect(
+      authors.every(a => a.id !== capturedId),
+      `deleted author (id ${capturedId}) should not appear in listing`,
+    ).toBeTruthy();
+  });
 });
