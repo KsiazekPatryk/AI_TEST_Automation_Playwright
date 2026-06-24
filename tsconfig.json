@@ -9,6 +9,7 @@
       "@api/factories/*": ["./src/api/factories/*"],
       "@api/models/*": ["./src/api/models/*"],
       "@api/steps/*": ["./src/api/steps/*"],
+      "@api/schemas/*": ["./src/api/schemas/*"],
       "@ui/pages/*": ["./src/ui/pages/*"],
       "@ui/components/*": ["./src/ui/components/*"],
       "@ui/models/*": ["./src/ui/models/*"],
