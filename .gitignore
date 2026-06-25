@@ -6,3 +6,4 @@ test-results/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.claude/settings.local.json
