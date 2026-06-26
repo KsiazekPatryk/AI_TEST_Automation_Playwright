@@ -1,7 +1,7 @@
 ---
 name: 🧠 API Test Planner - OpenAPI Based
 description: "Generate automation-ready API test plans from OpenAPI documentation. Creates 3 separate scenario groups: schema validation, positive scenarios, and negative scenarios with documented validations."
-model: sonnet
+model: Claude Sonnet 4.6 (copilot)
 
 tools: [read, write, edit, search, vscode, todo]
 

@@ -2,7 +2,7 @@
 name: 🧠 E2E Test Planner - API + UI Hybrid Scenarios
 description: "Plan hybrid end-to-end tests that combine API setup, UI actions, UI verification, API verification, and API cleanup. Analyzes OpenAPI, existing API/UI/E2E tests, project architecture, API coverage, and validates the scenario through Playwright MCP before generating an automation-ready E2E plan."
 
-model: sonnet
+model: Claude Sonnet 4.6 (copilot)
 
 tools: [read, edit, search, vscode, todo, 'playwright/*']
 

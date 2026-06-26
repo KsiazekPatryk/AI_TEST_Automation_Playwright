@@ -2,7 +2,7 @@
 name: ♻️ E2E Test Refactor - Production Ready Architecture
 description: "Refactor simple Playwright E2E tests into production-ready architecture using Page Objects, Components, Fixtures and existing API Requests/APISteps. Preserve behavior while improving maintainability, readability and scalability."
 
-model: sonnet
+model: Claude Sonnet 4.6 (copilot)
 
 tools: [vscode, execute, read, edit, search, 'playwright/*', todo]
 

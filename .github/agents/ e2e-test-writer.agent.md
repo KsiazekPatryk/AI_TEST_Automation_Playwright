@@ -2,7 +2,7 @@
 name: 📝 E2E Test Writer - Simple API + UI Hybrid Test
 description: "Write simple, working Playwright TypeScript E2E tests based on prepared E2E scenarios. Uses API for setup and cleanup, UI for business actions, UI verification, and API verification. Focus on passing tests, not architecture."
 
-model: sonnet
+model: Claude Sonnet 4.6 (copilot)
 
 tools: [vscode, execute, read, edit, search, web/fetch, web/githubRepo, 'playwright/*', todo]
 

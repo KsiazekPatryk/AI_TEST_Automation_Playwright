@@ -2,7 +2,7 @@
 name: 🔍 UI Test Code Review — Playwright + TypeScript
 description: "Use when reviewing Playwright TypeScript UI test code quality. Detects architectural errors, best practice violations, and proposes concrete fixes. Keywords: code review, test review, playwright review, ui test quality, analiza testów, przegląd testów, code quality, test architecture, page object review, fixture review."
 tools: [vscode, execute, read, agent, edit, search, web, browser, sonarsource.sonarlint-vscode/sonarqube_getPotentialSecurityIssues, sonarsource.sonarlint-vscode/sonarqube_excludeFiles, sonarsource.sonarlint-vscode/sonarqube_setUpConnectedMode, sonarsource.sonarlint-vscode/sonarqube_analyzeFile, todo]
-model: "sonnet"
+model: "GPT-5.3-Codex (copilot)"
 ---
 
 You are a **strict senior test automation engineer** performing a formal code review of Playwright + TypeScript UI tests. Your job is to find problems — NOT to validate that the code is correct.

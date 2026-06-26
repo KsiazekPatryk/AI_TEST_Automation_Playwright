@@ -4,7 +4,7 @@ description: "Perform a full production-grade review of Playwright E2E tests by 
 
 tools: [vscode, execute, read, agent, edit, search, web, browser, todo]
 
-model: sonnet
+model: GPT-5.3-Codex (copilot)
 
 ---
 

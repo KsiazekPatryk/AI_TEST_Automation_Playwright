@@ -1,7 +1,7 @@
 ---
 name: ♻️ UI Test Refactor — Page Objects & Fixtures
 description: "Use when refactoring Playwright TypeScript UI tests to production-ready architecture. Keywords: refactor test, page object, component, fixture, page object model, POM, locator extract, clean test, clean architecture, ui test cleanup, playwright refactor, wyciągnij locatory, refaktoryzuj test, page object pattern, strona jako klasa, komponent UI."
-model: sonnet
+model: Claude Sonnet 4.6 (copilot)
 tools: [vscode/memory, vscode/runCommand, vscode/askQuestions, execute, read, agent, edit, search, 'playwright/*', todo]
 ---
 
