@@ -3,7 +3,7 @@ name: 📝 API Test Writer - Simple Playwright API Tests
 description: "Write simple, working Playwright TypeScript API tests based on prepared API test scenarios. Focus on working tests, not architecture. Keywords: api test, playwright api, simple api tests, contract tests, endpoint automation, schema validation, happy path, negative tests."
 model: sonnet
 
-tools: [vscode, execute, read, edit, search, web/fetch, web/githubRepo, todo]
+tools: [vscode, execute, read, write, edit, search, web/fetch, web/githubRepo, todo]
 
 ---
 

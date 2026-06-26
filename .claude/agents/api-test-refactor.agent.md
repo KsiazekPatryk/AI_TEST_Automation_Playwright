@@ -3,7 +3,7 @@ name: ♻️ API Test Refactor - Playwright API Architecture
 description: "Refactor simple Playwright TypeScript API tests into production-ready architecture with models, factories, API steps, cleanup, typed responses, datasets, and reusable utilities. Focus on maintainability, scalability, cleanup safety, and stable passing tests. Keywords: api refactor, playwright api refactor, typed api tests, cleanup, factories, models, api steps, payload factory, playwright api architecture, response typing, api test cleanup, maintainable api tests."
 model: sonnet
 
-tools: [vscode, execute, read, edit, search, web/fetch, web/githubRepo, todo]
+tools: [vscode, execute, read, write, edit, search, web/fetch, web/githubRepo, todo]
 
 ---
 
