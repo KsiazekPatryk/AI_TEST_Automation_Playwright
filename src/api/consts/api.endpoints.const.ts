@@ -5,4 +5,8 @@ export const API_ENDPOINTS = {
     base: `${API_BASE_URL}/authors`,
     byId: (id: number) => `${API_BASE_URL}/authors/${id}`,
   },
+  books: {
+    base: `${API_BASE_URL}/books`,
+    byId: (id: number) => `${API_BASE_URL}/books/${id}`,
+  },
 };
