@@ -4,25 +4,45 @@ import { getRandomBookOverridePayload } from '@api/factories/book.factory';
 import { BookResponse } from '@api/models/book.model';
 import { AuthorResponse } from '@api/models/author.model';
 
+type NumericBoundaryField = 'price' | 'available' | 'year';
+
 test.describe('POST /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
   let authorA: AuthorResponse;
   let authorB: AuthorResponse;
   const createdBookIds: number[] = [];
+  const currentYear = new Date().getFullYear();
+
+  const boundaryCases: ReadonlyArray<{
+    readonly name: string;
+    readonly field: NumericBoundaryField;
+    readonly value: number;
+  }> = [
+    { name: 'price at minimum boundary (0.01)', field: 'price', value: 0.01 },
+    { name: 'price at maximum boundary (1000)', field: 'price', value: 1000 },
+    { name: 'available at minimum boundary (1)', field: 'available', value: 1 },
+    { name: 'available at maximum boundary (10000)', field: 'available', value: 10000 },
+    { name: 'year at minimum boundary (1900)', field: 'year', value: 1900 },
+    { name: `year set to current year (${currentYear})`, field: 'year', value: currentYear },
+  ];
 
   test.beforeAll(async ({ authorsApiSteps }) => {
     authorA = await authorsApiSteps.create({
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
+      firstName: faker.string.alpha({ length: 8 }),
+      lastName: faker.string.alpha({ length: 10 }),
     });
     authorB = await authorsApiSteps.create({
-      firstName: faker.person.firstName(),
-      lastName: faker.person.lastName(),
+      firstName: faker.string.alpha({ length: 7 }),
+      lastName: faker.string.alpha({ length: 9 }),
     });
   });
 
   test.afterAll(async ({ authorsApiSteps }) => {
-    await authorsApiSteps.delete(authorA.id);
-    await authorsApiSteps.delete(authorB.id);
+    if (authorA?.id) {
+      await authorsApiSteps.delete(authorA.id);
+    }
+    if (authorB?.id) {
+      await authorsApiSteps.delete(authorB.id);
+    }
   });
 
   test.afterEach(async ({ booksApiSteps }) => {
@@ -62,67 +82,30 @@ test.describe('POST /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
 
     await test.step('assert both authors are present', () => {
       expect(book.authors).toHaveLength(2);
-      expect(book.authors.some(a => a.id === authorA.id)).toBe(true);
-      expect(book.authors.some(a => a.id === authorB.id)).toBe(true);
+      expect(book.authors).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ id: authorA.id }),
+          expect.objectContaining({ id: authorB.id }),
+        ]),
+      );
     });
   });
 
-  test('should create a book with price at minimum boundary (0.01)', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], price: 0.01 });
+  boundaryCases.forEach(({ name, field, value }) => {
+    test(`should create a book with ${name}`, async ({ booksApiSteps }) => {
+      const payload = getRandomBookOverridePayload({ authors: [authorA.id], [field]: value });
 
-    const book: BookResponse = await test.step('POST /books with price=0.01', () => booksApiSteps.createBook(payload));
-    createdBookIds.push(book.id);
+      const book: BookResponse = await test.step(`POST /books with ${field}=${value}`, () =>
+        booksApiSteps.createBook(payload),
+      );
+      createdBookIds.push(book.id);
 
-    expect(book.price).toBe(0.01);
-  });
-
-  test('should create a book with price at maximum boundary (1000)', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], price: 1000 });
-
-    const book: BookResponse = await test.step('POST /books with price=1000', () => booksApiSteps.createBook(payload));
-    createdBookIds.push(book.id);
-
-    expect(book.price).toBe(1000);
-  });
-
-  test('should create a book with available at minimum boundary (1)', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], available: 1 });
-
-    const book: BookResponse = await test.step('POST /books with available=1', () => booksApiSteps.createBook(payload));
-    createdBookIds.push(book.id);
-
-    expect(book.available).toBe(1);
-  });
-
-  test('should create a book with available at maximum boundary (10000)', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], available: 10000 });
-
-    const book: BookResponse = await test.step('POST /books with available=10000', () => booksApiSteps.createBook(payload));
-    createdBookIds.push(book.id);
-
-    expect(book.available).toBe(10000);
-  });
-
-  test('should create a book with year at minimum boundary (1900)', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], year: 1900 });
-
-    const book: BookResponse = await test.step('POST /books with year=1900', () => booksApiSteps.createBook(payload));
-    createdBookIds.push(book.id);
-
-    expect(book.year).toBe(1900);
-  });
-
-  test('should create a book with year set to current year (2026)', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], year: 2026 });
-
-    const book: BookResponse = await test.step('POST /books with year=2026', () => booksApiSteps.createBook(payload));
-    createdBookIds.push(book.id);
-
-    expect(book.year).toBe(2026);
+      expect(book[field]).toBe(value);
+    });
   });
 
   test('should persist the created book and be retrievable via GET /books/{id} with identical data', async ({ booksApiSteps }) => {
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], year: 2021, price: 35.0, available: 25 });
+    const payload = getRandomBookOverridePayload({ authors: [authorA.id], year: 2021, price: 35, available: 25 });
 
     const created: BookResponse = await test.step('POST /books', () => booksApiSteps.createBook(payload));
     createdBookIds.push(created.id);
@@ -135,7 +118,7 @@ test.describe('POST /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
       expect(retrieved.id).toBe(created.id);
       expect(retrieved.title).toBe(payload.title);
       expect(retrieved.year).toBe(2021);
-      expect(retrieved.price).toBe(35.0);
+      expect(retrieved.price).toBe(35);
       expect(retrieved.available).toBe(25);
       expect(retrieved.authors[0].id).toBe(authorA.id);
     });
