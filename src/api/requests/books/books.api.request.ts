@@ -14,6 +14,10 @@ export class BooksAPIRequest {
     return this.api.get(API_ENDPOINTS.books.byId(id));
   }
 
+  async updateBook(id: number, payload: BookPayload): Promise<APIResponse> {
+    return this.api.put(API_ENDPOINTS.books.byId(id), payload);
+  }
+
   async deleteBook(id: number): Promise<APIResponse> {
     return this.api.delete(API_ENDPOINTS.books.byId(id));
   }

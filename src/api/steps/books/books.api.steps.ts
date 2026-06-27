@@ -19,6 +19,17 @@ export class BooksAPISteps {
     return body;
   }
 
+  async updateBook(id: number, payload: BookPayload): Promise<BookResponse> {
+    const response = await this.booksRequest.updateBook(id, payload);
+    expect(response.status()).toBe(HTTP_200_OK);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = await parseResponse<BookResponse>(response);
+    const result = BookSchema.safeParse(body);
+    expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
+    expect(body.id).toBe(id);
+    return body;
+  }
+
   async getBookById(id: number): Promise<BookResponse> {
     const response = await this.booksRequest.getBookById(id);
     expect(response.status()).toBe(HTTP_200_OK);
