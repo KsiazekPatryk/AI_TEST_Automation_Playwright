@@ -1,10 +1,10 @@
 import { expect } from '@playwright/test';
 import { AuthorsAPIRequest } from '@api/requests/authors/authors.api.request';
-import { AuthorResponse, CreateAuthorPayload } from '@api/models/author.model';
+import { AuthorResponse, CreateAuthorPayload, UpdateAuthorPayload } from '@api/models/author.model';
 import { parseResponse } from '@utils/parse.response.utils';
 import { QueryParams } from '@api/requests/api.request';
 import { HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT } from '@api/consts/http.status.codes.const';
-import { AuthorArraySchema } from '@api/schemas/author.schema';
+import { AuthorArraySchema, AuthorSchema } from '@api/schemas/author.schema';
 
 export class AuthorsAPISteps {
   constructor(private readonly authorsRequest: AuthorsAPIRequest) {}
@@ -22,7 +22,31 @@ export class AuthorsAPISteps {
   async create(payload: CreateAuthorPayload): Promise<AuthorResponse> {
     const response = await this.authorsRequest.create(payload);
     expect(response.status()).toBe(HTTP_201_CREATED);
-    return parseResponse<AuthorResponse>(response);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = await parseResponse<AuthorResponse>(response);
+    const result = AuthorSchema.safeParse(body);
+    expect(result.success, result.success ? '' : JSON.stringify(result.error?.issues)).toBe(true);
+    return body;
+  }
+
+  async getById(id: number): Promise<AuthorResponse> {
+    const response = await this.authorsRequest.getById(id);
+    expect(response.status()).toBe(HTTP_200_OK);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = await parseResponse<AuthorResponse>(response);
+    const result = AuthorSchema.safeParse(body);
+    expect(result.success, result.success ? '' : JSON.stringify(result.error?.issues)).toBe(true);
+    return body;
+  }
+
+  async update(id: number, payload: UpdateAuthorPayload): Promise<AuthorResponse> {
+    const response = await this.authorsRequest.update(id, payload);
+    expect(response.status()).toBe(HTTP_200_OK);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = await parseResponse<AuthorResponse>(response);
+    const result = AuthorSchema.safeParse(body);
+    expect(result.success, result.success ? '' : JSON.stringify(result.error?.issues)).toBe(true);
+    return body;
   }
 
   async delete(id: number): Promise<void> {

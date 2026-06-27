@@ -8,3 +8,10 @@ export function getRandomAuthorPayload(overrides?: Partial<CreateAuthorPayload>)
     ...overrides,
   };
 }
+
+export function getRandomAuthorOverridePayload(overrides: Partial<CreateAuthorPayload>): CreateAuthorPayload {
+  return {
+    ...getRandomAuthorPayload(),
+    ...overrides,
+  };
+}

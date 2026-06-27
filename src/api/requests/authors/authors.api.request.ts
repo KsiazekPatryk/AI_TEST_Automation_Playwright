@@ -1,7 +1,7 @@
 import { APIResponse } from '@playwright/test';
 import { APIRequest, QueryParams } from '@api/requests/api.request';
 import { API_ENDPOINTS } from '@api/consts/api.endpoints.const';
-import { CreateAuthorPayload } from '@api/models/author.model';
+import { CreateAuthorPayload, UpdateAuthorPayload } from '@api/models/author.model';
 
 export class AuthorsAPIRequest {
   constructor(private readonly api: APIRequest) {}
@@ -16,6 +16,10 @@ export class AuthorsAPIRequest {
 
   async create(payload: CreateAuthorPayload): Promise<APIResponse> {
     return this.api.post(API_ENDPOINTS.authors.base, payload);
+  }
+
+  async update(id: number, payload: UpdateAuthorPayload): Promise<APIResponse> {
+    return this.api.put(API_ENDPOINTS.authors.byId(id), payload);
   }
 
   async delete(id: number): Promise<APIResponse> {
