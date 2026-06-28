@@ -72,8 +72,8 @@ test.describe('PUT /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, () =
   const boundaryDataset = [
     { description: 'price at minimum boundary (1)', overrides: { price: 1, available: 5, year: 2021 } },
     { description: 'price at maximum boundary (10000)', overrides: { price: 10000, available: 5, year: 2021 } },
-    { description: 'available at minimum boundary (1)', overrides: { available: 1, price: 20, year: 2021 } },
-    { description: 'available at maximum boundary (10000)', overrides: { available: 10000, price: 20, year: 2021 } },
+    { description: 'available at minimum boundary (1)', overrides: { available: 1, price: 20.0, year: 2021 } },
+    { description: 'available at maximum boundary (10000)', overrides: { available: 10000, price: 20.0, year: 2021 } },
   ];
 
   boundaryDataset.forEach(({ description, overrides }) => {
