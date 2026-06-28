@@ -11,6 +11,12 @@ test.describe('E2E — Edit Book: Add Second Author', { tag: ['@e2e', '@books-ma
   let authorB: AuthorResponse | undefined;
   let book: BookResponse | undefined;
 
+  test.beforeEach(() => {
+    authorA = undefined;
+    authorB = undefined;
+    book = undefined;
+  });
+
   test.afterEach(async ({ authorsApiSteps, booksApiSteps }) => {
     if (book) await booksApiSteps.deleteBook(book.id);
     if (authorA) await authorsApiSteps.delete(authorA.id);

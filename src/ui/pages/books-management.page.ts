@@ -38,7 +38,8 @@ export class BooksManagementPage {
   }
 
   getBookRow(title: string): Locator {
-    return this.page.getByRole('row', { name: new RegExp(title) });
+    const escapedTitle = title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return this.page.getByRole('row', { name: new RegExp(escapedTitle) });
   }
 
   async openEditBook(title: string): Promise<void> {
