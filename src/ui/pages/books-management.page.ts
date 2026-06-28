@@ -17,6 +17,10 @@ export class BooksManagementPage {
     await this.page.goto('/books-management');
   }
 
+  async reload(): Promise<void> {
+    await this.page.reload();
+  }
+
   async openAddNewBookForm(): Promise<void> {
     await this.addNewBookButton.click();
   }
@@ -31,5 +35,13 @@ export class BooksManagementPage {
 
   getBookAuthorCell(author: string): Locator {
     return this.page.getByRole('cell', { name: author, exact: true });
+  }
+
+  getBookRow(title: string): Locator {
+    return this.page.getByRole('row', { name: new RegExp(title) });
+  }
+
+  async openEditBook(title: string): Promise<void> {
+    await this.getBookRow(title).getByRole('button', { name: '✏️' }).click();
   }
 }

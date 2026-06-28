@@ -4,6 +4,8 @@ import { AuthorsPage } from '@ui/pages/authors.page';
 import { BooksManagementPage } from '@ui/pages/books-management.page';
 import { AddNewAuthorFormComponent } from '@ui/components/add-new-author-form.component';
 import { AddNewBookFormComponent } from '@ui/components/add-new-book-form.component';
+import { EditBookPanelComponent } from '@ui/components/edit-book-panel.component';
+import { ToastComponent } from '@ui/components/toast.component';
 
 type Pages = {
   bookListingPage: BookListingPage;
@@ -11,6 +13,8 @@ type Pages = {
   booksManagementPage: BooksManagementPage;
   addNewAuthorForm: AddNewAuthorFormComponent;
   addNewBookForm: AddNewBookFormComponent;
+  editBookPanel: EditBookPanelComponent;
+  toastComponent: ToastComponent;
 };
 
 export const test = base.extend<Pages>({
@@ -31,5 +35,11 @@ export const test = base.extend<Pages>({
       has: page.getByRole('heading', { name: '➕ Add New Book', level: 3 }),
     });
     await use(new AddNewBookFormComponent(root));
+  },
+  editBookPanel: async ({ page }, use) => {
+    await use(new EditBookPanelComponent(page));
+  },
+  toastComponent: async ({ page }, use) => {
+    await use(new ToastComponent(page));
   },
 });
