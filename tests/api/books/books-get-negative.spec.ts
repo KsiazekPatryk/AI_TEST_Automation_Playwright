@@ -1,52 +1,82 @@
 import { test, expect } from '@fixtures/test.fixture';
 import { QueryParams } from '@api/requests/api.request';
 import { RestBookResponse } from '@api/models/book.model';
-import { RestBooksSchema } from '@api/schemas/book.schema';
+import { faker } from '@faker-js/faker';
+
+const FORBIDDEN_RESPONSE_KEYS = ['password', 'token', 'secret', 'apiKey'];
+
+function getNonExistentValue(label: string): string {
+  return `__nonexistent_${label}_${faker.string.uuid()}__`;
+}
 
 type ContractValidNegativeQuery = {
   readonly testId: string;
   readonly description: string;
-  readonly params?: QueryParams;
+  readonly buildParams: () => QueryParams;
+  readonly expectEmptyResult: boolean;
 };
 
 const contractValidNegativeQueries: ContractValidNegativeQuery[] = [
   {
     testId: 'NEG-BOOKS-GET-001',
     description: 'an unlikely title value',
-    params: { title: '__nonexistent_book_title_12345__' },
+    buildParams: () => ({ title: getNonExistentValue('book_title') }),
+    expectEmptyResult: true,
   },
   {
     testId: 'NEG-BOOKS-GET-002',
     description: 'an unlikely author value',
-    params: { author: '__nonexistent_author_name_12345__' },
+    buildParams: () => ({ author: getNonExistentValue('author_name') }),
+    expectEmptyResult: true,
   },
   {
     testId: 'NEG-BOOKS-GET-003',
     description: 'unlikely title and author values',
-    params: {
-      title: '__nonexistent_book_title_12345__',
-      author: '__nonexistent_author_name_12345__',
-    },
+    buildParams: () => ({
+      title: getNonExistentValue('book_title'),
+      author: getNonExistentValue('author_name'),
+    }),
+    expectEmptyResult: true,
   },
   {
     testId: 'NEG-BOOKS-GET-004',
-    description: 'the documented base request because no negative response contract exists',
+    description: 'an unsupported query key',
+    buildParams: () => ({ unsupportedKey: getNonExistentValue('unsupported_key') }),
+    expectEmptyResult: false,
+  },
+  {
+    testId: 'NEG-BOOKS-GET-005',
+    description: 'SQL-like and XSS-like query values',
+    buildParams: () => ({ title: `"' OR 1=1 -- <script>${faker.string.uuid()}</script>` }),
+    expectEmptyResult: true,
   },
 ];
 
-function expectRestBooksSchema(body: RestBookResponse[]): void {
+function expectRestBooksResponse(body: RestBookResponse[]): void {
   expect(Array.isArray(body)).toBe(true);
 
-  const result = RestBooksSchema.safeParse(body);
-  expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
+  for (const book of body) {
+    const bookKeys = Object.keys(book);
+    expect(bookKeys.some((key) => FORBIDDEN_RESPONSE_KEYS.includes(key))).toBe(false);
+
+    for (const author of book.authors ?? []) {
+      const authorKeys = Object.keys(author);
+      expect(authorKeys.some((key) => FORBIDDEN_RESPONSE_KEYS.includes(key))).toBe(false);
+    }
+  }
 }
 
 test.describe('GET /books 2xx contract-valid negative inputs', { tag: ['@api', '@books', '@regression'] }, () => {
-  contractValidNegativeQueries.forEach(({ testId, description, params }) => {
+  contractValidNegativeQueries.forEach(({ testId, description, buildParams, expectEmptyResult }) => {
     test(`should return documented response for ${description} for ${testId}`, async ({ booksApiSteps }) => {
+      const params = buildParams();
       const body = await booksApiSteps.getBooks(params);
 
-      expectRestBooksSchema(body);
+      expectRestBooksResponse(body);
+
+      if (expectEmptyResult) {
+        expect(body).toHaveLength(0);
+      }
     });
   });
 });

@@ -1,413 +1,300 @@
-# POST /books — Positive Scenarios
+# POST /books Positive Scenarios
 
 ---
 
-## Endpoint Information
+# Endpoint Information
 
-- **Method:** POST
-- **Endpoint:** `/books`
-- **Description:** Creates a new book in the bookstore system. Returns 201 with the created book object on success.
-
----
-
-## Preconditions
-
-- At least one author exists in the system.
-- For multi-author tests: at least two authors exist in the system.
-- Author IDs are known before test execution (retrieved via `GET /authors` or created in test setup).
-- Each test uses a unique book title to avoid 409 Conflict interference between tests.
+- Method: POST
+- Endpoint: `/books`
+- Description: `createBook` operation from `books-controller`. Creates a book request resource according to `CreateBookPayload`. OpenAPI documents only `201 Created` with response schema `type: object`.
 
 ---
 
-## Test Data
+# Preconditions
+
+- Use the OpenAPI server URL: `http://bookstoreapi.up.railway.app`.
+- No authentication requirements are documented for this operation.
+- Send request body as `application/json`.
+- Use unique `authors` integer IDs in each payload because OpenAPI defines `uniqueItems: true`.
+
+---
+
+# Test Data
+
+Reusable valid payload:
 
 ```json
-// Base valid payload
 {
-  "title": "Testowanie REST API dla początkujących",
-  "authors": [49],
-  "year": 2022,
+  "title": "Positive Contract Book",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
+```
 
-// Boundary: price minimum
-{ "price": 0.01 }   // OpenAPI minimum
-{ "price": 1 }      // Documentation minimum (screenshot)
+Positive boundary values documented in OpenAPI:
 
-// Boundary: price maximum
-{ "price": 1000 }
-
-// Boundary: available minimum
-{ "available": 1 }
-
-// Boundary: available maximum
-{ "available": 10000 }
-
-// Boundary: year minimum
-{ "year": 1900 }
-
-// Multi-author
-{ "authors": [<id_1>, <id_2>] }
+```json
+{
+  "price": [0.01, 1000],
+  "available": [1, 10000]
+}
 ```
 
 ---
 
-## Test Cases
+# Test Cases
 
----
+## Test Case ID
+TC-POS-BOOKS-POST-001
 
-### TC-POS-BOOKS-POST-01
+## Scenario
+Create a book with all documented request properties.
 
-#### Scenario
-Create a book with all required fields — happy path
+## Purpose
+Verify successful creation when request body includes all fields defined in `CreateBookPayload`.
 
-#### Purpose
-Verify that a valid request with all required fields creates a book and returns correct data.
+## Request
 
-#### Request
+### Headers
 
-##### Headers
-```
+```http
 Content-Type: application/json
 Accept: */*
 ```
 
-##### Request Body
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Testowanie REST API dla początkujących",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Positive Contract Book 001",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
 ```
 
-#### Expected Status Code
+## Expected Status Code
 `201 Created`
 
-#### Expected Response
-```json
-{
-  "id": <generated_integer>,
-  "title": "Testowanie REST API dla początkujących",
-  "year": 2022,
-  "price": 49.99,
-  "coverId": null,
-  "available": 100,
-  "authors": [
-    {
-      "id": <existing_author_id>,
-      "firstName": "<author_firstName>",
-      "lastName": "<author_lastName>"
-    }
-  ]
-}
-```
+## Expected Response
+Response body is an object. No response properties are documented in OpenAPI for `201`.
 
-#### Assertions
-- `response.status() === 201`
-- `response.body.id` is a positive integer
-- `response.body.title === "Testowanie REST API dla początkujących"`
-- `response.body.year === 2022`
-- `response.body.price === 49.99`
-- `response.body.coverId === null`
-- `response.body.available === 100`
-- `response.body.authors.length === 1`
-- `response.body.authors[0].id === <existing_author_id>`
-- `response.body.authors[0].firstName` is a non-empty string
-- `response.body.authors[0].lastName` is a non-empty string
+## Assertions
+- Assert status code is `201`.
+- Assert response body is an object.
+- Assert request included documented optional field `title` as a string.
+- Assert request included required fields `authors`, `year`, `price`, and `available`.
 
 ---
 
-### TC-POS-BOOKS-POST-02
+## Test Case ID
+TC-POS-BOOKS-POST-002
 
-#### Scenario
-Create a book with multiple authors
+## Scenario
+Create a book without optional `title`.
 
-#### Purpose
-Verify that the `authors` field accepts multiple valid author IDs and all are reflected in the response.
+## Purpose
+Verify OpenAPI contract behavior when only required fields are sent.
 
-#### Request
+## Request
 
-##### Headers
-```
+### Headers
+
+```http
 Content-Type: application/json
+Accept: */*
 ```
 
-##### Request Body
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Multi-Author Book Test",
-  "authors": [<author_id_1>, <author_id_2>],
-  "year": 2023,
-  "price": 89.99,
-  "available": 50
+  "authors": [1],
+  "year": 2026,
+  "price": 49.99,
+  "available": 10
 }
 ```
 
-#### Expected Status Code
+## Expected Status Code
 `201 Created`
 
-#### Assertions
-- `response.status() === 201`
-- `response.body.authors.length === 2`
-- `response.body.authors` contains author with `id === <author_id_1>`
-- `response.body.authors` contains author with `id === <author_id_2>`
+## Expected Response
+Response body is an object.
+
+## Assertions
+- Assert status code is `201` because `title` is not required by OpenAPI.
+- Assert response body is an object.
+- Assert no test assertion requires `title` to exist in the response because the `201` response properties are undocumented.
 
 ---
 
-### TC-POS-BOOKS-POST-03
+## Test Case ID
+TC-POS-BOOKS-POST-003
 
-#### Scenario
-Create a book with `price` at minimum boundary (0.01)
+## Scenario
+Create a book with multiple unique authors.
 
-#### Purpose
-Verify that the minimum allowed price value is accepted. Tests the OpenAPI-defined minimum of `0.01`.
+## Purpose
+Verify a valid `authors` array containing unique `int64` values is accepted.
 
-#### Request
+## Request
 
-##### Request Body
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Min Price Book 001",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Positive Contract Book 003",
+  "authors": [1, 2],
+  "year": 2026,
+  "price": 49.99,
+  "available": 10
+}
+```
+
+## Expected Status Code
+`201 Created`
+
+## Expected Response
+Response body is an object.
+
+## Assertions
+- Assert status code is `201`.
+- Assert `authors` request array contains unique integer values.
+- Assert response body is an object.
+
+---
+
+## Test Case ID
+TC-POS-BOOKS-POST-004
+
+## Scenario
+Create a book using minimum documented boundaries.
+
+## Purpose
+Verify inclusive minimum values documented in OpenAPI are accepted.
+
+## Request
+
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
+```json
+{
+  "title": "Positive Contract Book 004",
+  "authors": [1],
+  "year": 2026,
   "price": 0.01,
   "available": 1
 }
 ```
 
-#### Expected Status Code
+## Expected Status Code
 `201 Created`
 
-#### Assertions
-- `response.status() === 201`
-- `response.body.price === 0.01`
+## Expected Response
+Response body is an object.
+
+## Assertions
+- Assert status code is `201`.
+- Assert request `price` equals documented inclusive minimum `0.01`.
+- Assert request `available` equals documented minimum `1`.
+- Assert response body is an object.
 
 ---
 
-### TC-POS-BOOKS-POST-04
+## Test Case ID
+TC-POS-BOOKS-POST-005
 
-#### Scenario
-Create a book with `price` at maximum boundary (1000)
+## Scenario
+Create a book using maximum documented boundaries.
 
-#### Purpose
-Verify that the maximum allowed price value (1000) is accepted.
+## Purpose
+Verify inclusive maximum values documented in OpenAPI are accepted.
 
-#### Request
+## Request
 
-##### Request Body
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Max Price Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Positive Contract Book 005",
+  "authors": [1],
+  "year": 2026,
   "price": 1000,
-  "available": 1
-}
-```
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `response.status() === 201`
-- `response.body.price === 1000`
-
----
-
-### TC-POS-BOOKS-POST-05
-
-#### Scenario
-Create a book with `available` at minimum boundary (1)
-
-#### Purpose
-Verify that the minimum allowed available quantity (1) is accepted.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Min Available Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 49.99,
-  "available": 1
-}
-```
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `response.status() === 201`
-- `response.body.available === 1`
-
----
-
-### TC-POS-BOOKS-POST-06
-
-#### Scenario
-Create a book with `available` at maximum boundary (10000)
-
-#### Purpose
-Verify that the maximum allowed available quantity (10000) is accepted.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Max Available Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 49.99,
   "available": 10000
 }
 ```
 
-#### Expected Status Code
+## Expected Status Code
 `201 Created`
 
-#### Assertions
-- `response.status() === 201`
-- `response.body.available === 10000`
+## Expected Response
+Response body is an object.
+
+## Assertions
+- Assert status code is `201`.
+- Assert request `price` equals documented inclusive maximum `1000`.
+- Assert request `available` equals documented maximum `10000`.
+- Assert response body is an object.
 
 ---
 
-### TC-POS-BOOKS-POST-07
+# Notes
 
-#### Scenario
-Create a book with `year` at minimum boundary (1900)
-
-#### Purpose
-Verify that year value 1900 — the documented minimum — is accepted.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Oldest Book Boundary Test",
-  "authors": [<existing_author_id>],
-  "year": 1900,
-  "price": 29.99,
-  "available": 10
-}
-```
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `response.status() === 201`
-- `response.body.year === 1900`
-
----
-
-### TC-POS-BOOKS-POST-08
-
-#### Scenario
-Create a book with `year` set to current year
-
-#### Purpose
-Verify that the current year is accepted as a valid value.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Current Year Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2026,
-  "price": 59.99,
-  "available": 20
-}
-```
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `response.status() === 201`
-- `response.body.year === 2026`
-
----
-
-### TC-POS-BOOKS-POST-09
-
-#### Scenario
-Created book data persists — verify via GET /books/{id}
-
-#### Purpose
-Verify that the book returned in the POST response can be retrieved via GET and contains identical data.
-
-#### Request
-
-**Step 1 — POST /books:**
-```json
-{
-  "title": "Persistence Test Book",
-  "authors": [<existing_author_id>],
-  "year": 2021,
-  "price": 35.00,
-  "available": 25
-}
-```
-
-**Step 2 — GET /books/{id}** using `id` from POST response.
-
-#### Expected Status Code
-- POST: `201 Created`
-- GET: `200 OK`
-
-#### Assertions
-- `POST response.body.id` is present
-- `GET response.body.id === POST response.body.id`
-- `GET response.body.title === "Persistence Test Book"`
-- `GET response.body.year === 2021`
-- `GET response.body.price === 35.00`
-- `GET response.body.available === 25`
-- `GET response.body.authors[0].id === <existing_author_id>`
-
----
-
-### TC-POS-BOOKS-POST-10
-
-#### Scenario
-`price` accepts decimal value (number type, not integer-only)
-
-#### Purpose
-Verify that a decimal price value is stored and returned correctly.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Decimal Price Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 19.95,
-  "available": 5
-}
-```
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `response.status() === 201`
-- `response.body.price === 19.95`
-
----
-
-## Notes
-
-- **OpenAPI discrepancy — `price` minimum:** OpenAPI spec defines minimum as `0.01`, documentation screenshot states minimum as `1`. TC-POS-03 uses `0.01` to test the OpenAPI-defined value. If the API rejects `0.01`, the actual enforced minimum is likely `1` — update negative tests accordingly.
-- **`title` uniqueness:** Each test case uses a distinct title to prevent 409 Conflict errors from interfering with unrelated test runs.
-- **Cleanup:** Test setup should delete created books after test completion to keep the environment clean (via `DELETE /books/{id}`).
+- OpenAPI documents no response body fields for `201`, so these scenarios do not assert persistence, generated IDs, echoed payload fields, author details, or cover data.
+- OpenAPI documents no pagination, filtering, sorting, search, idempotency, authentication, state transition, or conflict behavior for `POST /books`; those were excluded.
+- OpenAPI defines no minimum or maximum for `year`, so no year boundary success case is included.

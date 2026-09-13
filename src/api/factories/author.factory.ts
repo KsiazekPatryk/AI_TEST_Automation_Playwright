@@ -3,8 +3,8 @@ import { CreateAuthorPayload, PatchAuthorPayload } from '@api/models/author.mode
 
 export function getRandomAuthorPayload(overrides?: Partial<CreateAuthorPayload>): CreateAuthorPayload {
   return {
-    firstName: faker.person.firstName(),
-    lastName: faker.person.lastName(),
+    firstName: faker.person.firstName().replaceAll("'", ''),
+    lastName: faker.person.lastName().replaceAll("'", ''),
     ...overrides,
   };
 }

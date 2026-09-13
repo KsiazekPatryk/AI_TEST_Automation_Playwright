@@ -1,5 +1,5 @@
 export interface BookPayload {
-  readonly title: string;
+  readonly title?: string;
   readonly authors: number[];
   readonly year: number;
   readonly price: number;
@@ -36,7 +36,7 @@ export interface RestBookResponse {
   readonly title?: string;
   readonly year?: number;
   readonly price?: number;
-  readonly coverUrl?: string;
+  readonly coverUrl?: string | null;
   readonly available?: number;
   readonly authors?: RestBookAuthorResponse[];
   [key: string]: unknown;

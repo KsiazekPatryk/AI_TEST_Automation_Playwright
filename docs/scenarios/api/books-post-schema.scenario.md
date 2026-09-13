@@ -1,455 +1,264 @@
-# POST /books — Schema Validation Scenarios
+# POST /books Schema Validation
 
 ---
 
-## Endpoint Information
+# Endpoint Information
 
-- **Method:** POST
-- **Endpoint:** `/books`
-- **Description:** Creates a new book in the bookstore system. Returns 201 with the created book object on success.
-
----
-
-## Preconditions
-
-- At least one author exists in the system (required to build valid `authors` payload).
-- Note the ID of an existing author (e.g., retrieved via `GET /authors`).
+- Method: POST
+- Endpoint: `/books`
+- Description: `createBook` operation from `books-controller`. Creates a book request resource according to `CreateBookPayload`. OpenAPI documents only `201 Created` with response schema `type: object`.
 
 ---
 
-## Test Data
+# Preconditions
+
+- Use the OpenAPI server URL: `http://bookstoreapi.up.railway.app`.
+- No authentication requirements are documented for this operation.
+- Send request body as `application/json`.
+- Use unique integer values in `authors` because OpenAPI defines `uniqueItems: true`.
+
+---
+
+# Test Data
+
+Valid payload for schema checks:
 
 ```json
-// Valid base payload (use existing author ID)
 {
-  "title": "Schema Test Book",
-  "authors": [49],
-  "year": 2022,
+  "title": "Schema Contract Book",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
+}
+```
+
+Boundary values documented in `CreateBookPayload`:
+
+```json
+{
+  "priceMinimum": 0.01,
+  "priceMaximum": 1000,
+  "availableMinimum": 1,
+  "availableMaximum": 10000
 }
 ```
 
 ---
 
-## Test Cases
+# Test Cases
 
----
+## Test Case ID
+TC-SCHEMA-BOOKS-POST-001
 
-### TC-SCHEMA-BOOKS-POST-01
+## Scenario
+Validate documented success status and response media type.
 
-#### Scenario
-Successful creation returns HTTP 201
+## Purpose
+Confirm that a valid `CreateBookPayload` returns the only success response documented for `POST /books`.
 
-#### Purpose
-Verify that a valid request returns the correct HTTP status code.
+## Request
 
-#### Request
+### Headers
 
-##### Headers
-```
+```http
 Content-Type: application/json
 Accept: */*
 ```
 
-##### Request Body
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Schema Test Book 01",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Schema Contract Book 001",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
 ```
 
-#### Expected Status Code
+## Expected Status Code
 `201 Created`
 
-#### Expected Response
-JSON body of created book.
+## Expected Response
+Response body is a JSON object. OpenAPI defines the response schema only as `type: object` and does not document response properties.
 
-#### Assertions
-- `response.status() === 201`
+## Assertions
+- Assert status code is `201`.
+- Assert response body is an object.
+- Assert response body is not an array.
+- Assert response body is not `null`.
+- Assert response `Content-Type` is compatible with the documented `*/*` response content and can be parsed as JSON when body is returned as JSON.
 
 ---
 
-### TC-SCHEMA-BOOKS-POST-02
+## Test Case ID
+TC-SCHEMA-BOOKS-POST-002
 
-#### Scenario
-Response Content-Type is application/json
+## Scenario
+Validate request schema required fields.
 
-#### Purpose
-Verify that the API returns the correct Content-Type header.
+## Purpose
+Confirm automation sends every field required by `CreateBookPayload`.
 
-#### Request
+## Request
 
-##### Headers
-```
+### Headers
+
+```http
 Content-Type: application/json
+Accept: */*
 ```
 
-##### Request Body
-Same as TC-SCHEMA-BOOKS-POST-01.
+### Path Params
+None.
 
-#### Expected Status Code
-`201 Created`
+### Query Params
+None.
 
-#### Expected Response
-Header present in response.
+### Request Body
 
-#### Assertions
-- `response.headers()['content-type']` contains `application/json`
-
----
-
-### TC-SCHEMA-BOOKS-POST-03
-
-#### Scenario
-Response body contains all expected top-level fields
-
-#### Purpose
-Verify the response schema matches the documented `Book` object.
-
-#### Request
-
-##### Headers
-```
-Content-Type: application/json
-```
-
-##### Request Body
-Same as TC-SCHEMA-BOOKS-POST-01.
-
-#### Expected Status Code
-`201 Created`
-
-#### Expected Response
 ```json
 {
-  "id": <integer>,
-  "title": <string>,
-  "year": <integer>,
-  "price": <number>,
-  "coverId": null,
-  "available": <integer>,
-  "authors": [...]
-}
-```
-
-#### Assertions
-- Response body contains field `id`
-- Response body contains field `title`
-- Response body contains field `year`
-- Response body contains field `price`
-- Response body contains field `coverId`
-- Response body contains field `available`
-- Response body contains field `authors`
-- Total number of top-level keys is 7
-
----
-
-### TC-SCHEMA-BOOKS-POST-04
-
-#### Scenario
-`id` field is of type integer (int64)
-
-#### Purpose
-Validate the type of the `id` field in the response.
-
-#### Request
-
-##### Headers
-```
-Content-Type: application/json
-```
-
-##### Request Body
-Same as TC-SCHEMA-BOOKS-POST-01.
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `typeof response.body.id === 'number'`
-- `Number.isInteger(response.body.id)` is true
-- `response.body.id > 0`
-
----
-
-### TC-SCHEMA-BOOKS-POST-05
-
-#### Scenario
-`title` field is of type string
-
-#### Purpose
-Validate the type of the `title` field in the response.
-
-#### Request
-
-##### Request Body
-Same as TC-SCHEMA-BOOKS-POST-01.
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `typeof response.body.title === 'string'`
-- `response.body.title` is not empty
-
----
-
-### TC-SCHEMA-BOOKS-POST-06
-
-#### Scenario
-`year` field is of type integer (int32)
-
-#### Purpose
-Validate the type of the `year` field in the response.
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `typeof response.body.year === 'number'`
-- `Number.isInteger(response.body.year)` is true
-
----
-
-### TC-SCHEMA-BOOKS-POST-07
-
-#### Scenario
-`price` field is of type number
-
-#### Purpose
-Validate the type of the `price` field in the response.
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `typeof response.body.price === 'number'`
-
----
-
-### TC-SCHEMA-BOOKS-POST-08
-
-#### Scenario
-`coverId` field is nullable — returns null for a newly created book
-
-#### Purpose
-Verify that `coverId` is null when no cover has been assigned yet.
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `response.body.coverId === null`
-
----
-
-### TC-SCHEMA-BOOKS-POST-09
-
-#### Scenario
-`available` field is of type integer (int32)
-
-#### Purpose
-Validate the type of the `available` field in the response.
-
-#### Expected Status Code
-`201 Created`
-
-#### Assertions
-- `typeof response.body.available === 'number'`
-- `Number.isInteger(response.body.available)` is true
-
----
-
-### TC-SCHEMA-BOOKS-POST-10
-
-#### Scenario
-`authors` field is a non-empty array with uniqueItems
-
-#### Purpose
-Validate the structure of the `authors` field.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Schema Test Book 10",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
 ```
 
-#### Expected Status Code
+## Expected Status Code
 `201 Created`
 
-#### Assertions
-- `Array.isArray(response.body.authors)` is true
-- `response.body.authors.length >= 1`
+## Expected Response
+Response body is a JSON object.
+
+## Assertions
+- Assert request body includes required field `authors`.
+- Assert request body includes required field `year`.
+- Assert request body includes required field `price`.
+- Assert request body includes required field `available`.
+- Assert `title` is not treated as required because it is not listed in the OpenAPI `required` array.
+- Assert status code is `201`.
 
 ---
 
-### TC-SCHEMA-BOOKS-POST-11
+## Test Case ID
+TC-SCHEMA-BOOKS-POST-003
 
-#### Scenario
-Each object in `authors` array contains expected fields with correct types
+## Scenario
+Validate request field types and formats.
 
-#### Purpose
-Validate the `Author` object schema within the response `authors` array.
+## Purpose
+Confirm `CreateBookPayload` values match documented primitive types and integer formats.
 
-#### Expected Status Code
-`201 Created`
+## Request
 
-#### Expected Response — Author object structure
-```json
-{
-  "id": <integer>,
-  "firstName": <string>,
-  "lastName": <string>
-}
-```
+### Headers
 
-#### Assertions
-For each author in `response.body.authors`:
-- `typeof author.id === 'number'` and `Number.isInteger(author.id)`
-- `typeof author.firstName === 'string'`
-- `typeof author.lastName === 'string'`
-- Author object contains exactly 3 fields: `id`, `firstName`, `lastName`
-
----
-
-### TC-SCHEMA-BOOKS-POST-12
-
-#### Scenario
-400 error response structure — validation errors on empty body
-
-#### Purpose
-Verify the error response schema for validation failures.
-
-#### Request
-
-##### Headers
-```
+```http
 Content-Type: application/json
+Accept: */*
 ```
 
-##### Request Body
-```json
-{}
-```
+### Path Params
+None.
 
-#### Expected Status Code
-`400 Bad Request`
+### Query Params
+None.
 
-#### Expected Response
-```json
-{
-  "timestamp": "<ISO 8601 datetime>",
-  "status": 400,
-  "error": "Bad Request",
-  "message": [
-    "price incorrect input data",
-    "year incorrect input data",
-    "available incorrect input data",
-    "title incorrect input data",
-    "authors incorrect input data"
-  ]
-}
-```
+### Request Body
 
-#### Assertions
-- `response.status() === 400`
-- `response.body.status === 400`
-- `response.body.error === 'Bad Request'`
-- `response.body.timestamp` is present and not empty
-- `Array.isArray(response.body.message)` is true
-- `response.body.message.length >= 1`
-
----
-
-### TC-SCHEMA-BOOKS-POST-13
-
-#### Scenario
-400 error response structure — non-existent author ID
-
-#### Purpose
-Verify the alternative error response schema (uses `errors` key, not `message`).
-
-#### Request
-
-##### Request Body
 ```json
 {
-  "title": "Schema Test Book 13",
-  "authors": [999999],
-  "year": 2022,
+  "title": "Schema Contract Book 003",
+  "authors": [1, 2],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+`201 Created`
 
-#### Expected Response
-```json
-{
-  "timestamp": "<ISO 8601 datetime>",
-  "status": 400,
-  "errors": ["Can not find author with given id: 999999"]
-}
-```
+## Expected Response
+Response body is a JSON object.
 
-#### Assertions
-- `response.status() === 400`
-- `response.body.status === 400`
-- `response.body.timestamp` is present
-- `Array.isArray(response.body.errors)` is true
-- `response.body.errors[0]` contains `"Can not find author with given id"`
+## Assertions
+- Assert `title` is a string when provided.
+- Assert `authors` is an array.
+- Assert each `authors` item is an integer compatible with `int64`.
+- Assert `authors` contains unique items.
+- Assert `year` is an integer compatible with `int32`.
+- Assert `price` is a number.
+- Assert `available` is an integer compatible with `int32`.
+- Assert status code is `201`.
 
 ---
 
-### TC-SCHEMA-BOOKS-POST-14
+## Test Case ID
+TC-SCHEMA-BOOKS-POST-004
 
-#### Scenario
-409 Conflict response structure — duplicate title
+## Scenario
+Validate documented numeric boundaries in request schema.
 
-#### Purpose
-Verify the error response schema for duplicate book title.
+## Purpose
+Confirm boundary values documented in OpenAPI are represented in contract-level schema checks.
 
-#### Preconditions
-A book with the title "Existing Book Title" has already been created.
+## Request
 
-#### Request
+### Headers
 
-##### Request Body
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Existing Book Title",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
+  "title": "Schema Contract Book 004",
+  "authors": [1],
+  "year": 2026,
+  "price": 0.01,
+  "available": 1
 }
 ```
 
-#### Expected Status Code
-`409 Conflict`
+## Expected Status Code
+`201 Created`
 
-#### Assertions
-- `response.status() === 409`
+## Expected Response
+Response body is a JSON object.
+
+## Assertions
+- Assert `price` is greater than or equal to `0.01` because `exclusiveMinimum` is `false`.
+- Assert `price` is less than or equal to `1000` because `exclusiveMaximum` is `false`.
+- Assert `available` is greater than or equal to `1`.
+- Assert `available` is less than or equal to `10000`.
+- Assert status code is `201`.
 
 ---
 
-## Notes
+# Notes
 
-- **OpenAPI discrepancy — `title` required field:** `title` is NOT listed in the `required` array of `CreateBookPayload` in the OpenAPI spec, but the API documentation (screenshots) and actual behavior indicate it is required. Tests should treat `title` as required.
-- **OpenAPI discrepancy — `price` minimum:** OpenAPI spec defines `price` minimum as `0.01`, but the API documentation states the minimum is `1`. Boundary tests should cover both values to detect the actual enforced limit.
-- **Dual error response structures:** Two different error response shapes are documented (`message` array vs `errors` array). The key used depends on the error type — this must be accounted for in schema assertions.
-- **`coverId` nullability:** Not explicitly marked as nullable in OpenAPI, but example response shows `null`. Treat as nullable.
+- OpenAPI documents `POST /books` exactly as `/books`; no endpoint path adjustment was needed.
+- The `201` response schema is only `type: object`; no response fields such as `id`, `title`, `authors`, or timestamps are documented for this operation.
+- OpenAPI does not mark any fields as nullable and does not define enums, pagination, response headers, or `additionalProperties` behavior for this operation.
+- `title` is optional according to OpenAPI because it is present in `properties` but absent from `required`.
+- OpenAPI documents no authentication requirement and no non-2xx responses for this operation.

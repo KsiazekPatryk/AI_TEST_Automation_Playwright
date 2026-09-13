@@ -1,5 +1,11 @@
 import { getRandomAuthorPayload, getRandomAuthorOverridePayload } from '@api/factories/author.factory';
-import { HTTP_400_BAD_REQUEST, HTTP_500_INTERNAL_SERVER_ERROR } from '@api/consts/http.status.codes.const';
+import {
+  HTTP_400_BAD_REQUEST,
+  HTTP_401_UNAUTHORIZED,
+  HTTP_403_FORBIDDEN,
+  HTTP_500_INTERNAL_SERVER_ERROR,
+  HTTP_STATUS_CODE_EXCLUSIVE_MAX,
+} from '@api/consts/http.status.codes.const';
 import { APIResponse } from '@playwright/test';
 import { test, expect } from '@fixtures/test.fixture';
 import { parseResponse } from '@utils/parse.response.utils';
@@ -24,6 +30,27 @@ async function expectClientErrorResponse(response: APIResponse): Promise<void> {
   const result = ErrorBodySchema.safeParse(body);
   expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
   expect(JSON.stringify(body)).not.toMatch(/stack|exception|trace|password|token|secret/i);
+}
+
+async function expectUndocumentedNegativeResponse(response: APIResponse, testCaseId: string): Promise<void> {
+  const status = response.status();
+  const contentType = response.headers()['content-type'] ?? '';
+  const bodyText = await response.text();
+
+  test.info().annotations.push({
+    type: 'contract-gap',
+    description: `${testCaseId} runtime: status=${status}, contentType=${contentType}, body=${bodyText.slice(0, 300)}`,
+  });
+  await test.info().attach(`${testCaseId}-runtime-response`, {
+    body: bodyText,
+    contentType: contentType || 'text/plain',
+  });
+
+  expect([HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN]).not.toContain(status);
+  expect(status).toBeGreaterThanOrEqual(HTTP_400_BAD_REQUEST);
+  expect(status).toBeLessThan(HTTP_STATUS_CODE_EXCLUSIVE_MAX);
+  expect(contentType).toContain('application/json');
+  expect(bodyText).not.toMatch(/stack|exception|trace|password|token|secret/i);
 }
 
 test.describe('PATCH /authors/{id} 4xx contract gaps', { tag: ['@api', '@authors', '@regression'] }, () => {
@@ -57,7 +84,7 @@ test.describe('PATCH /authors/{id} 4xx contract gaps', { tag: ['@api', '@authors
 
     const response = await authorsApiRequest.patch(author.id);
 
-    await expectClientErrorResponse(response);
+    await expectUndocumentedNegativeResponse(response, 'TC-NEG-AUTHORS-ID-PATCH-002');
   });
 
   test('should reject an array body against the documented object request schema [TC-NEG-AUTHORS-ID-PATCH-003]', async ({

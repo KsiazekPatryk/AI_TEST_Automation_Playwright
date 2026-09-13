@@ -26,7 +26,7 @@ export const RestBookSchema = z
     title: z.string().optional(),
     year: z.number().int().optional(),
     price: z.number().optional(),
-    coverUrl: z.string().optional(),
+    coverUrl: z.string().nullable().optional(),
     available: z.number().int().optional(),
     authors: z.array(RestBookAuthorSchema).optional(),
   })

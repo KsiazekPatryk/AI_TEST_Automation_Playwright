@@ -5,6 +5,6 @@ export const API_ENDPOINTS = {
   },
   books: {
     base: '/books',
-    byId: (id: number) => `/books/${id}`,
+    byId: (id: number | string) => `/books/${id}`,
   },
 };

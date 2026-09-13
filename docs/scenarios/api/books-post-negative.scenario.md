@@ -1,688 +1,549 @@
-# POST /books — Negative Scenarios & Business Validations
+# POST /books Negative Scenarios & Business Validations
 
 ---
 
-## Endpoint Information
+# Endpoint Information
 
-- **Method:** POST
-- **Endpoint:** `/books`
-- **Description:** Creates a new book. Returns 400 for validation errors or non-existent authors, and 409 for duplicate title.
-
----
-
-## Preconditions
-
-- At least one author exists in the system with a known ID.
-- A book with the title `"Duplicate Title Book"` already exists in the system (required for TC-NEG-BOOKS-POST-15).
-- Author ID `999999` does NOT exist in the system.
+- Method: POST
+- Endpoint: `/books`
+- Description: `createBook` operation from `books-controller`. Creates a book request resource according to `CreateBookPayload`. OpenAPI documents only `201 Created` and does not document error responses.
 
 ---
 
-## Test Data
+# Preconditions
+
+- Use the OpenAPI server URL: `http://bookstoreapi.up.railway.app`.
+- No authentication requirements are documented for this operation.
+- Send request body as `application/json` unless the test case explicitly validates malformed input.
+- Treat expected error status codes and error body shapes as undocumented contract gaps because OpenAPI defines no non-2xx responses for `POST /books`.
+
+---
+
+# Test Data
+
+Valid base payload for mutation:
 
 ```json
-// Valid base (for reference and mutation)
 {
-  "title": "Valid Book Title",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Negative Contract Book",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
+```
 
-// Pre-existing duplicate
-{ "title": "Duplicate Title Book" }  // created in precondition
+Invalid values derived from documented `CreateBookPayload` constraints:
 
-// Out-of-range values
-{ "year": 1899 }         // below minimum 1900
-{ "price": 0 }           // below minimum 1 (per docs) / 0.01 (per OpenAPI)
-{ "price": 1001 }        // above maximum 1000
-{ "available": 0 }       // below minimum 1
-{ "available": 10001 }   // above maximum 10000
-
-// Non-existent author
-{ "authors": [999999] }
+```json
+{
+  "missingRequiredFields": ["authors", "year", "price", "available"],
+  "duplicateAuthors": [1, 1],
+  "priceBelowMinimum": 0,
+  "priceAboveMaximum": 1000.01,
+  "availableBelowMinimum": 0,
+  "availableAboveMaximum": 10001
+}
 ```
 
 ---
 
-## Test Cases
+# Test Cases
 
----
+## Test Case ID
+TC-NEG-BOOKS-POST-001
 
-### TC-NEG-BOOKS-POST-01
+## Scenario
+Missing required field `authors`.
 
-#### Scenario
-Missing `title` field — 400 Bad Request
+## Purpose
+Validate documented required-field enforcement for `authors`.
 
-#### Purpose
-Verify that omitting the `title` field results in a validation error.
+## Request
 
-#### Request
+### Headers
 
-##### Headers
-```
+```http
 Content-Type: application/json
+Accept: */*
 ```
 
-##### Request Body
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Negative Contract Book 001",
+  "year": 2026,
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
-- `response.body.status === 400`
-- Error message mentions `title`
+## Expected Response
+Error response schema is not documented in OpenAPI.
 
----
-
-### TC-NEG-BOOKS-POST-02
-
-#### Scenario
-`title` is an empty string — 400 Bad Request
-
-#### Purpose
-Verify that an empty string for `title` is rejected as invalid.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `title`
+## Assertions
+- Assert request omits documented required field `authors`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
+- Do not assert an error field name or message because no error schema is documented.
 
 ---
 
-### TC-NEG-BOOKS-POST-03
+## Test Case ID
+TC-NEG-BOOKS-POST-002
 
-#### Scenario
-Completely empty request body — 400 Bad Request
+## Scenario
+Missing required field `year`.
 
-#### Purpose
-Verify that an empty JSON object results in all-fields validation errors.
+## Purpose
+Validate documented required-field enforcement for `year`.
 
-#### Request
+## Request
 
-##### Headers
-```
+### Headers
+
+```http
 Content-Type: application/json
+Accept: */*
 ```
 
-##### Request Body
-```json
-{}
-```
+### Path Params
+None.
 
-#### Expected Status Code
-`400 Bad Request`
+### Query Params
+None.
 
-#### Expected Response
-```json
-{
-  "timestamp": "<datetime>",
-  "status": 400,
-  "error": "Bad Request",
-  "message": [
-    "price incorrect input data",
-    "year incorrect input data",
-    "available incorrect input data",
-    "title incorrect input data",
-    "authors incorrect input data"
-  ]
-}
-```
+### Request Body
 
-#### Assertions
-- `response.status() === 400`
-- `Array.isArray(response.body.message)` is true
-- `response.body.message` contains entry for `price`
-- `response.body.message` contains entry for `year`
-- `response.body.message` contains entry for `available`
-- `response.body.message` contains entry for `title`
-- `response.body.message` contains entry for `authors`
-
----
-
-### TC-NEG-BOOKS-POST-04
-
-#### Scenario
-Missing `authors` field — 400 Bad Request
-
-#### Purpose
-Verify that omitting the `authors` field results in a validation error.
-
-#### Request
-
-##### Request Body
 ```json
 {
-  "title": "Book Without Authors",
-  "year": 2022,
+  "title": "Negative Contract Book 002",
+  "authors": [1],
   "price": 49.99,
-  "available": 100
+  "available": 10
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `authors`
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request omits documented required field `year`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
 
 ---
 
-### TC-NEG-BOOKS-POST-05
+## Test Case ID
+TC-NEG-BOOKS-POST-003
 
-#### Scenario
-`authors` is an empty array — 400 Bad Request
+## Scenario
+Missing required field `price`.
 
-#### Purpose
-Verify that an empty `authors` list is rejected. The list must contain at least one author ID.
+## Purpose
+Validate documented required-field enforcement for `price`.
 
-#### Request
+## Request
 
-##### Request Body
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Book With Empty Authors",
-  "authors": [],
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
+  "title": "Negative Contract Book 003",
+  "authors": [1],
+  "year": 2026,
+  "available": 10
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `authors`
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request omits documented required field `price`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
 
 ---
 
-### TC-NEG-BOOKS-POST-06
+## Test Case ID
+TC-NEG-BOOKS-POST-004
 
-#### Scenario
-`authors` contains a non-existent author ID — 400 Bad Request
+## Scenario
+Missing required field `available`.
 
-#### Purpose
-Verify that referencing a non-existent author ID is rejected with a descriptive error.
+## Purpose
+Validate documented required-field enforcement for `available`.
 
-#### Request
+## Request
 
-##### Request Body
-```json
-{
-  "title": "Book With Ghost Author",
-  "authors": [999999],
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
-}
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+### Path Params
+None.
 
-#### Expected Response
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "timestamp": "<datetime>",
-  "status": 400,
-  "errors": ["Can not find author with given id: 999999"]
-}
-```
-
-#### Assertions
-- `response.status() === 400`
-- `response.body.errors` is an array
-- `response.body.errors[0]` contains `"Can not find author with given id: 999999"`
-
----
-
-### TC-NEG-BOOKS-POST-07
-
-#### Scenario
-Missing `year` field — 400 Bad Request
-
-#### Purpose
-Verify that omitting the `year` field results in a validation error.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Book Without Year",
-  "authors": [<existing_author_id>],
-  "price": 49.99,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `year`
-
----
-
-### TC-NEG-BOOKS-POST-08
-
-#### Scenario
-`year` below minimum — year 1899 is before the documented minimum of 1900
-
-#### Purpose
-Verify that a year value before 1900 is rejected.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Too Old Book Test",
-  "authors": [<existing_author_id>],
-  "year": 1899,
-  "price": 49.99,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `year`
-
----
-
-### TC-NEG-BOOKS-POST-09
-
-#### Scenario
-Missing `price` field — 400 Bad Request
-
-#### Purpose
-Verify that omitting the `price` field results in a validation error.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Book Without Price",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `price`
-
----
-
-### TC-NEG-BOOKS-POST-10
-
-#### Scenario
-`price` below minimum — value 0
-
-#### Purpose
-Verify that a price value of 0 is rejected (minimum is 1 per documentation / 0.01 per OpenAPI).
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Zero Price Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 0,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `price`
-
----
-
-### TC-NEG-BOOKS-POST-11
-
-#### Scenario
-`price` above maximum — value 1001
-
-#### Purpose
-Verify that a price value exceeding the maximum (1000) is rejected.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Over Max Price Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 1001,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `price`
-
----
-
-### TC-NEG-BOOKS-POST-12
-
-#### Scenario
-Missing `available` field — 400 Bad Request
-
-#### Purpose
-Verify that omitting the `available` field results in a validation error.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Book Without Available",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Negative Contract Book 004",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `available`
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request omits documented required field `available`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
 
 ---
 
-### TC-NEG-BOOKS-POST-13
+## Test Case ID
+TC-NEG-BOOKS-POST-005
 
-#### Scenario
-`available` below minimum — value 0
+## Scenario
+`authors` contains duplicate items.
 
-#### Purpose
-Verify that `available` value of 0 is rejected (minimum is 1).
+## Purpose
+Validate documented `uniqueItems: true` constraint for `authors`.
 
-#### Request
+## Request
 
-##### Request Body
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Zero Available Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Negative Contract Book 005",
+  "authors": [1, 1],
+  "year": 2026,
+  "price": 49.99,
+  "available": 10
+}
+```
+
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
+
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request violates `authors.uniqueItems: true`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
+
+---
+
+## Test Case ID
+TC-NEG-BOOKS-POST-006
+
+## Scenario
+`price` below documented minimum.
+
+## Purpose
+Validate documented inclusive minimum constraint `price >= 0.01`.
+
+## Request
+
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
+```json
+{
+  "title": "Negative Contract Book 006",
+  "authors": [1],
+  "year": 2026,
+  "price": 0,
+  "available": 10
+}
+```
+
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
+
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request `price` is below documented minimum `0.01`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
+
+---
+
+## Test Case ID
+TC-NEG-BOOKS-POST-007
+
+## Scenario
+`price` above documented maximum.
+
+## Purpose
+Validate documented inclusive maximum constraint `price <= 1000`.
+
+## Request
+
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
+```json
+{
+  "title": "Negative Contract Book 007",
+  "authors": [1],
+  "year": 2026,
+  "price": 1000.01,
+  "available": 10
+}
+```
+
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
+
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request `price` is above documented maximum `1000`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
+
+---
+
+## Test Case ID
+TC-NEG-BOOKS-POST-008
+
+## Scenario
+`available` below documented minimum.
+
+## Purpose
+Validate documented minimum constraint `available >= 1`.
+
+## Request
+
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
+```json
+{
+  "title": "Negative Contract Book 008",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
   "available": 0
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `available`
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request `available` is below documented minimum `1`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
 
 ---
 
-### TC-NEG-BOOKS-POST-14
+## Test Case ID
+TC-NEG-BOOKS-POST-009
 
-#### Scenario
-`available` above maximum — value 10001
+## Scenario
+`available` above documented maximum.
 
-#### Purpose
-Verify that an `available` value exceeding the maximum (10000) is rejected.
+## Purpose
+Validate documented maximum constraint `available <= 10000`.
 
-#### Request
+## Request
 
-##### Request Body
+### Headers
+
+```http
+Content-Type: application/json
+Accept: */*
+```
+
+### Path Params
+None.
+
+### Query Params
+None.
+
+### Request Body
+
 ```json
 {
-  "title": "Over Max Available Book Test",
-  "authors": [<existing_author_id>],
-  "year": 2022,
+  "title": "Negative Contract Book 009",
+  "authors": [1],
+  "year": 2026,
   "price": 49.99,
   "available": 10001
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
-- Error message mentions `available`
+## Expected Response
+Error response schema is not documented in OpenAPI.
 
----
-
-### TC-NEG-BOOKS-POST-15
-
-#### Scenario
-Duplicate `title` — 409 Conflict
-
-#### Purpose
-Verify that creating a book with a title that already exists in the system returns 409 Conflict.
-
-#### Preconditions
-A book with the title `"Duplicate Title Book"` was previously created (e.g., in test setup via POST /books).
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Duplicate Title Book",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`409 Conflict`
-
-#### Assertions
-- `response.status() === 409`
+## Assertions
+- Assert request `available` is above documented maximum `10000`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
 
 ---
 
-### TC-NEG-BOOKS-POST-16
+## Test Case ID
+TC-NEG-BOOKS-POST-010
 
-#### Scenario
-`price` as a string instead of number — 400 Bad Request
+## Scenario
+Invalid primitive types in request body.
 
-#### Purpose
-Verify that a wrong data type for `price` is rejected.
+## Purpose
+Validate documented type constraints for `CreateBookPayload`.
 
-#### Request
+## Request
 
-##### Request Body
-```json
-{
-  "title": "Wrong Price Type Book",
-  "authors": [<existing_author_id>],
-  "year": 2022,
-  "price": "forty-nine",
-  "available": 100
-}
-```
+### Headers
 
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-
----
-
-### TC-NEG-BOOKS-POST-17
-
-#### Scenario
-`year` as a string instead of integer — 400 Bad Request
-
-#### Purpose
-Verify that a wrong data type for `year` is rejected.
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Wrong Year Type Book",
-  "authors": [<existing_author_id>],
-  "year": "twenty twenty-two",
-  "price": 49.99,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-
----
-
-### TC-NEG-BOOKS-POST-18
-
-#### Scenario
-`authors` contains duplicate IDs (uniqueItems violation) — 400 Bad Request
-
-#### Purpose
-Verify that the `authors` array with duplicate IDs is rejected (OpenAPI defines `uniqueItems: true`).
-
-#### Request
-
-##### Request Body
-```json
-{
-  "title": "Duplicate Author IDs Book",
-  "authors": [<existing_author_id>, <existing_author_id>],
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
-}
-```
-
-#### Expected Status Code
-`400 Bad Request`
-
-#### Assertions
-- `response.status() === 400`
-
-> **Note:** Actual behavior may differ — the API might deduplicate the array instead of rejecting the request. If the response is `201`, verify only one author entry is present in the response `authors` array.
-
----
-
-### TC-NEG-BOOKS-POST-19
-
-#### Scenario
-Malformed JSON body — 400 Bad Request
-
-#### Purpose
-Verify that a syntactically invalid JSON body is rejected.
-
-#### Request
-
-##### Headers
-```
+```http
 Content-Type: application/json
+Accept: */*
 ```
 
-##### Raw Request Body (malformed)
-```
-{ "title": "Bad JSON", "year": 2022, "price": 49.99, "available": 100 "authors": [49] }
-```
-(missing comma after `available` value)
+### Path Params
+None.
 
-#### Expected Status Code
-`400 Bad Request`
+### Query Params
+None.
 
-#### Assertions
-- `response.status() === 400`
+### Request Body
 
----
-
-### TC-NEG-BOOKS-POST-20
-
-#### Scenario
-`authors` field is not an array (scalar value) — 400 Bad Request
-
-#### Purpose
-Verify that a non-array value for `authors` is rejected.
-
-#### Request
-
-##### Request Body
 ```json
 {
-  "title": "Authors Not Array Book",
-  "authors": 49,
-  "year": 2022,
-  "price": 49.99,
-  "available": 100
+  "title": 123,
+  "authors": "1",
+  "year": "2026",
+  "price": "49.99",
+  "available": "10"
 }
 ```
 
-#### Expected Status Code
-`400 Bad Request`
+## Expected Status Code
+Not documented in OpenAPI. Automation should assert that the actual status is not `201` and report a contract gap until OpenAPI defines the expected error status.
 
-#### Assertions
-- `response.status() === 400`
+## Expected Response
+Error response schema is not documented in OpenAPI.
+
+## Assertions
+- Assert request violates documented type `title: string`.
+- Assert request violates documented type `authors: array`.
+- Assert request violates documented type `year: integer`.
+- Assert request violates documented type `price: number`.
+- Assert request violates documented type `available: integer`.
+- Assert response status is not `201`.
+- Capture actual status code and response body for contract-gap reporting.
 
 ---
 
-## Notes
+# Notes
 
-- **OpenAPI discrepancy — `price` minimum:** OpenAPI spec minimum is `0.01`; documentation says `1`. TC-NEG-BOOKS-POST-10 uses `0` to test both boundaries. If the actual enforced minimum is `1`, a separate test with `price: 0.01` should be added and expected to return `400`.
-- **Dual error response structures:** Validation errors return `message` array; author-not-found errors return `errors` array. Assertions are adapted per test case.
-- **TC-NEG-BOOKS-POST-18 — uniqueItems behavior:** The OpenAPI defines `uniqueItems: true` for the `authors` array, but actual API behavior (reject vs. deduplicate) is undocumented. Observe actual behavior and update expected assertion accordingly.
-- **`title` not in OpenAPI required array:** Despite `title` not appearing in the `required` array in `CreateBookPayload`, TC-NEG-BOOKS-POST-01 verifies the documented requirement. If it passes without `title`, the API diverges from documentation.
+- OpenAPI documents no `400`, `401`, `403`, `404`, `409`, or other error response for `POST /books`; therefore exact negative expected status codes and error schemas are intentionally marked as undocumented.
+- `title` is not included in negative required-field scenarios because OpenAPI does not list `title` as required and defines no min length, max length, pattern, or uniqueness rule.
+- OpenAPI defines no business validations for existing author IDs, duplicate titles, authorization, malformed JSON responses, state transitions, pagination, filtering, sorting, or search for this operation; those were excluded.
+- OpenAPI defines no minimum or maximum for `year`; only type validation is covered.

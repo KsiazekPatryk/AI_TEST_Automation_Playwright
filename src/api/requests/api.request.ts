@@ -29,6 +29,12 @@ export class APIRequest {
   }
 
   async patch(endpoint: string, payload?: APIPayload | FormData, headers: RequestHeaders = {}): Promise<APIResponse> {
+    if (payload === undefined) {
+      return this.api.patch(endpoint, {
+        headers,
+      });
+    }
+
     const isFormData = payload instanceof FormData;
 
     return this.api.patch(endpoint, {
