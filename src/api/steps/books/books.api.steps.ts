@@ -1,9 +1,10 @@
 import { expect } from '@playwright/test';
 import { BooksAPIRequest } from '@api/requests/books/books.api.request';
-import { BookPayload, BookResponse } from '@api/models/book.model';
+import { BookPayload, BookResponse, RestBookResponse } from '@api/models/book.model';
 import { parseResponse } from '@utils/parse.response.utils';
 import { HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT } from '@api/consts/http.status.codes.const';
-import { BookSchema } from '@api/schemas/book.schema';
+import { BookSchema, RestBooksSchema } from '@api/schemas/book.schema';
+import { QueryParams } from '@api/requests/api.request';
 
 export class BooksAPISteps {
   constructor(private readonly booksRequest: BooksAPIRequest) {}
@@ -16,6 +17,16 @@ export class BooksAPISteps {
     const result = BookSchema.safeParse(body);
     expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
     expect(body).toHaveProperty('id');
+    return body;
+  }
+
+  async getBooks(params?: QueryParams): Promise<RestBookResponse[]> {
+    const response = await this.booksRequest.getBooks(params, { Accept: 'application/json' });
+    expect(response.status()).toBe(HTTP_200_OK);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = await parseResponse<RestBookResponse[]>(response);
+    const result = RestBooksSchema.safeParse(body);
+    expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
     return body;
   }
 

@@ -12,3 +12,24 @@ export const BookSchema = z.object({
 });
 
 export const BookArraySchema = z.array(BookSchema);
+
+export const RestBookAuthorSchema = z
+  .object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+  })
+  .passthrough();
+
+export const RestBookSchema = z
+  .object({
+    id: z.number().int().optional(),
+    title: z.string().optional(),
+    year: z.number().int().optional(),
+    price: z.number().optional(),
+    coverUrl: z.string().optional(),
+    available: z.number().int().optional(),
+    authors: z.array(RestBookAuthorSchema).optional(),
+  })
+  .passthrough();
+
+export const RestBooksSchema = z.array(RestBookSchema);

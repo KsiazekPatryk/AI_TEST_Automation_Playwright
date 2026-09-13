@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { CreateAuthorPayload } from '@api/models/author.model';
+import { CreateAuthorPayload, PatchAuthorPayload } from '@api/models/author.model';
 
 export function getRandomAuthorPayload(overrides?: Partial<CreateAuthorPayload>): CreateAuthorPayload {
   return {
@@ -9,9 +9,8 @@ export function getRandomAuthorPayload(overrides?: Partial<CreateAuthorPayload>)
   };
 }
 
-export function getRandomAuthorOverridePayload(overrides: Partial<CreateAuthorPayload>): CreateAuthorPayload {
-  return {
-    ...getRandomAuthorPayload(),
-    ...overrides,
-  };
+export function getRandomAuthorOverridePayload<T extends Partial<CreateAuthorPayload> | PatchAuthorPayload>(
+  overrides: T,
+): T extends PatchAuthorPayload ? PatchAuthorPayload : CreateAuthorPayload {
+  return overrides as T extends PatchAuthorPayload ? PatchAuthorPayload : CreateAuthorPayload;
 }

@@ -24,3 +24,20 @@ export interface BookResponse {
   readonly authors: BookAuthor[];
   [key: string]: unknown;
 }
+
+export interface RestBookAuthorResponse {
+  readonly firstName?: string;
+  readonly lastName?: string;
+  [key: string]: unknown;
+}
+
+export interface RestBookResponse {
+  readonly id?: number;
+  readonly title?: string;
+  readonly year?: number;
+  readonly price?: number;
+  readonly coverUrl?: string;
+  readonly available?: number;
+  readonly authors?: RestBookAuthorResponse[];
+  [key: string]: unknown;
+}

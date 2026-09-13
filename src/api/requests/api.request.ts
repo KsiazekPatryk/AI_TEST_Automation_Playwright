@@ -1,6 +1,6 @@
 import { APIRequestContext, APIResponse } from '@playwright/test';
 
-export type APIPayload = Record<string, unknown> | unknown[];
+export type APIPayload = Record<string, unknown> | unknown[] | string;
 export type RequestHeaders = Record<string, string>;
 export type QueryParams = Record<string, string | number | boolean>;
 

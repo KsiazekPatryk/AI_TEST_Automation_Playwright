@@ -1,3 +1,7 @@
+// HTTP status code range
+export const HTTP_STATUS_CODE_MIN = 100;
+export const HTTP_STATUS_CODE_EXCLUSIVE_MAX = 600;
+
 // 2xx - Success Responses
 export const HTTP_200_OK = 200;
 export const HTTP_201_CREATED = 201;

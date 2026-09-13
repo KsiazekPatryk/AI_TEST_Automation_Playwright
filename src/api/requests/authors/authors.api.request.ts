@@ -1,7 +1,7 @@
 import { APIResponse } from '@playwright/test';
-import { APIRequest, QueryParams } from '@api/requests/api.request';
+import { APIPayload, APIRequest, QueryParams } from '@api/requests/api.request';
 import { API_ENDPOINTS } from '@api/consts/api.endpoints.const';
-import { CreateAuthorPayload, UpdateAuthorPayload } from '@api/models/author.model';
+import { CreateAuthorPayload, PatchAuthorPayload, UpdateAuthorPayload } from '@api/models/author.model';
 
 export class AuthorsAPIRequest {
   constructor(private readonly api: APIRequest) {}
@@ -22,7 +22,11 @@ export class AuthorsAPIRequest {
     return this.api.put(API_ENDPOINTS.authors.byId(id), payload);
   }
 
-  async delete(id: number): Promise<APIResponse> {
+  async patch(id: number | string, payload?: PatchAuthorPayload | APIPayload): Promise<APIResponse> {
+    return this.api.patch(API_ENDPOINTS.authors.byId(id), payload, { 'Content-Type': 'application/json' });
+  }
+
+  async delete(id: number | string): Promise<APIResponse> {
     return this.api.delete(API_ENDPOINTS.authors.byId(id));
   }
 }
