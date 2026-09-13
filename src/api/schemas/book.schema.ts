@@ -13,6 +13,10 @@ export const BookSchema = z.object({
 
 export const BookArraySchema = z.array(BookSchema);
 
+export const PatchBookPayloadSchema = z.record(z.string(), z.object({}).passthrough());
+
+export const PatchBookResponseSchema = z.record(z.string(), z.unknown());
+
 export const RestBookAuthorSchema = z
   .object({
     firstName: z.string().optional(),

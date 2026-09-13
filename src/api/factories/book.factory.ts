@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { BookPayload } from '@api/models/book.model';
+import { BookPayload, PatchBookPayload } from '@api/models/book.model';
 
 export function getRandomBookPayload(): BookPayload {
   return {
@@ -11,9 +11,21 @@ export function getRandomBookPayload(): BookPayload {
   };
 }
 
-export function getRandomBookOverridePayload(overrides: Partial<BookPayload>): BookPayload {
+export function getRandomBookOverridePayload<T extends Partial<BookPayload> | PatchBookPayload>(
+  overrides: T,
+): T extends PatchBookPayload ? PatchBookPayload : BookPayload {
+  const overrideRecord: Record<string, unknown> = overrides;
+  const bookPayloadKeys = ['title', 'authors', 'year', 'price', 'available'];
+  const isPatchPayload = Object.entries(overrideRecord).every(
+    ([key, value]) => !bookPayloadKeys.includes(key) && typeof value === 'object' && value !== null && !Array.isArray(value),
+  );
+
+  if (isPatchPayload) {
+    return overrides as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
+  }
+
   return {
     ...getRandomBookPayload(),
     ...overrides,
-  };
+  } as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
 }

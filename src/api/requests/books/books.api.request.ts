@@ -1,7 +1,7 @@
 import { APIResponse } from '@playwright/test';
 import { APIPayload, APIRequest, QueryParams, RequestHeaders } from '@api/requests/api.request';
 import { API_ENDPOINTS } from '@api/consts/api.endpoints.const';
-import { BookPayload } from '@api/models/book.model';
+import { BookPayload, PatchBookPayload } from '@api/models/book.model';
 
 export class BooksAPIRequest {
   constructor(private readonly api: APIRequest) {}
@@ -20,6 +20,10 @@ export class BooksAPIRequest {
 
   async updateBook(id: number, payload: BookPayload): Promise<APIResponse> {
     return this.api.put(API_ENDPOINTS.books.byId(id), payload);
+  }
+
+  async patchBook(id: number | string, payload?: PatchBookPayload | APIPayload): Promise<APIResponse> {
+    return this.api.patch(API_ENDPOINTS.books.byId(id), payload, { 'Content-Type': 'application/json', Accept: '*/*' });
   }
 
   async deleteBook(id: number | string, headers: RequestHeaders = {}): Promise<APIResponse> {

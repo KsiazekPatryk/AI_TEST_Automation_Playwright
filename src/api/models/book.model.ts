@@ -7,6 +7,14 @@ export interface BookPayload {
   [key: string]: unknown;
 }
 
+export interface PatchBookPayload {
+  readonly [key: string]: Record<string, unknown>;
+}
+
+export interface PatchBookResponse {
+  readonly [key: string]: unknown;
+}
+
 export interface BookAuthor {
   readonly id: number;
   readonly firstName: string;

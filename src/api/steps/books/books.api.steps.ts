@@ -1,9 +1,9 @@
-import { expect } from '@playwright/test';
+import { APIResponse, expect } from '@playwright/test';
 import { BooksAPIRequest } from '@api/requests/books/books.api.request';
-import { BookPayload, BookResponse, RestBookResponse } from '@api/models/book.model';
+import { BookPayload, BookResponse, PatchBookPayload, PatchBookResponse, RestBookResponse } from '@api/models/book.model';
 import { parseResponse } from '@utils/parse.response.utils';
 import { HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT } from '@api/consts/http.status.codes.const';
-import { BookSchema, RestBooksSchema } from '@api/schemas/book.schema';
+import { BookSchema, PatchBookResponseSchema, RestBooksSchema } from '@api/schemas/book.schema';
 import { QueryParams } from '@api/requests/api.request';
 
 export class BooksAPISteps {
@@ -39,6 +39,20 @@ export class BooksAPISteps {
     expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
     expect(body.id).toBe(id);
     return body;
+  }
+
+  async patchBook(id: number, payload: PatchBookPayload): Promise<PatchBookResponse> {
+    const response = await this.booksRequest.patchBook(id, payload);
+    expect(response.status()).toBe(HTTP_200_OK);
+    expect(response.headers()['content-type']).toContain('application/json');
+    const body = await parseResponse<PatchBookResponse>(response);
+    const result = PatchBookResponseSchema.safeParse(body);
+    expect(result.success, result.success ? '' : JSON.stringify(result.error.issues)).toBe(true);
+    return body;
+  }
+
+  async patchBookRaw(id: number | string, payload?: PatchBookPayload): Promise<APIResponse> {
+    return this.booksRequest.patchBook(id, payload);
   }
 
   async getBookById(id: number): Promise<BookResponse> {
