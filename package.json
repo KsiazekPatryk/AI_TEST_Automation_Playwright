@@ -10,9 +10,11 @@
     "test:api": "playwright test tests/api --project=api",
     "test:e2e": "playwright test tests/e2e --project=e2e",
     "test:all": "playwright test --project=api --project=ui --project=e2e",
+    "test:affected": "tsx src/test-selection/run.ts",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
