@@ -15,6 +15,7 @@ A demonstration repository showcasing a **fully automated test pipeline** for a 
 - [Project Architecture](#project-architecture)
 - [Application Under Test](#application-under-test)
 - [Test Types](#test-types)
+- [Test Selection & Observability](#test-selection--observability)
 - [AI Solutions — GitHub Copilot Agents](#ai-solutions--github-copilot-agents)
 - [Running the Project](#running-the-project)
 - [Code Conventions & Standards](#code-conventions--standards)
@@ -67,14 +68,17 @@ src/
 │   ├── components/     # Reusable UI fragments (modal, panel, toast)
 │   ├── models/         # Interfaces for UI form data
 │   └── factories/      # UI form data generators using faker
+├── core/               # Global Playwright setup
 ├── fixtures/           # Playwright test extensions (*.fixture.ts)
 ├── data/               # Static constants, enums, seed data
+├── observability/      # JSONL reporter and error sanitization
+├── test-selection/     # Dependency-based affected test selection
 └── utils/              # Helper functions (parseResponse, logging)
 
 tests/
 ├── api/                # API tests (*.spec.ts)
-│   ├── authors/        # GET/POST/PUT for Authors resource
-│   └── books/          # POST/PUT for Books resource
+│   ├── authors/        # Full Authors resource coverage
+│   └── books/          # Full Books resource coverage
 ├── ui/                 # UI tests (*.spec.ts)
 └── e2e/                # E2E scenarios (*.spec.ts)
 
@@ -87,7 +91,7 @@ docs/
 
 .github/
 ├── agents/             # AI agent definitions (*.agent.md)
-└── instruction/        # Automation instructions for Copilot
+└── instructions/       # Path-specific automation instructions for Copilot
 ```
 
 #### Path Aliases (tsconfig.json)
@@ -176,6 +180,15 @@ export const test = mergeTests(apiLogger, apiRequests, pages);
 - **`api.fixture.ts`** — provides `authorsApiRequest`, `authorsApiSteps`, `booksApiRequest`, `booksApiSteps`
 - **`pages.fixture.ts`** — provides all Page Objects and Components
 
+### Test Selection & Observability
+
+The project includes two features that support faster feedback and easier test diagnostics:
+
+- **Affected test selection** (`src/test-selection/`) builds a local dependency graph from each spec's TypeScript imports. `npm run test:affected` compares the current branch with `main` (or `origin/<GITHUB_BASE_REF>` in CI) and runs only the affected specs. Changes to global configuration, TypeScript configuration, package files, or `.github/` instructions intentionally trigger the full suite.
+- **Observability reporter** (`src/observability/reporter.ts`) writes one JSON object per line to `.observability/run-<id>.jsonl`. It records the run, test status, retries, duration, test steps, failed targets, sanitized errors, and artifact paths. `src/core/global-setup.ts` prepares the run environment, while `playwright.config.ts` registers both the HTML reporter and the custom reporter.
+
+Generated `.observability/` files are local run artifacts and should not be committed.
+
 ---
 
 ### AI Solutions — GitHub Copilot Agents
@@ -263,7 +276,7 @@ The [AGENTS.md](AGENTS.md) file is automatically loaded by GitHub Copilot into e
 - Preferred Playwright locator order
 - Assertion rules (web-first, auto-retrying)
 
-The `.github/instruction/setup-playwright-project.instructions.md` file allows the `Copilot` agent to automatically **create the entire project scaffold** from scratch in a single step, following the architecture described in this README.
+The `.github/instructions/` directory contains path-specific rules for API testing, UI selectors, and TypeScript type safety. These instructions complement `AGENTS.md` and are applied automatically to matching files.
 
 #### API Test Code Review — GPT-5.3-Codex model
 
@@ -343,6 +356,7 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 | `npm run test:debug` | Playwright Inspector (debug mode) |
 | `npm run test:report` | Open HTML report |
 | `npm run test:list` | List all discovered tests |
+| `npm run test:affected` | Run specs affected by the current diff; fall back to the full suite for global changes |
 
 #### Test Tagging
 
@@ -357,6 +371,9 @@ npx playwright test --grep @books-management
 
 # API authors tests only
 npx playwright test --grep "@api @authors"
+
+# Tests affected by the current branch changes
+npm run test:affected
 ```
 
 ---
@@ -430,6 +447,7 @@ Repozytorium demonstracyjne prezentujące **w pełni zautomatyzowany pipeline te
 - [Architektura projektu](#architektura-projektu)
 - [Testowana aplikacja](#testowana-aplikacja)
 - [Typy testów](#typy-testów)
+- [Selekcja testów i obserwowalność](#selekcja-testów-i-obserwowalność)
 - [Rozwiązania AI — GitHub Copilot Agents](#rozwiązania-ai--github-copilot-agents)
 - [Uruchomienie projektu](#uruchomienie-projektu)
 - [Konwencje i standardy kodu](#konwencje-i-standardy-kodu)
@@ -482,14 +500,17 @@ src/
 │   ├── components/     # Wielokrotnego użytku fragmenty UI (modal, panel, toast)
 │   ├── models/         # Interfejsy dla danych formularzy UI
 │   └── factories/      # Generatory danych formularzy UI z użyciem faker
+├── core/               # Globalna konfiguracja Playwright
 ├── fixtures/           # Rozszerzenia testów Playwright (*.fixture.ts)
 ├── data/               # Stałe statyczne, enumy, dane seed
+├── observability/      # Reporter JSONL i sanitizacja błędów
+├── test-selection/     # Selekcja testów dotkniętych zmianami
 └── utils/              # Pomocnicze funkcje (parseResponse, logowanie)
 
 tests/
 ├── api/                # Testy API (*.spec.ts)
-│   ├── authors/        # GET/POST/PUT dla zasobu Authors
-│   └── books/          # POST/PUT dla zasobu Books
+│   ├── authors/        # Pełne pokrycie zasobu Authors
+│   └── books/          # Pełne pokrycie zasobu Books
 ├── ui/                 # Testy UI (*.spec.ts)
 └── e2e/                # Scenariusze E2E (*.spec.ts)
 
@@ -502,7 +523,7 @@ docs/
 
 .github/
 ├── agents/             # Definicje agentów AI (*.agent.md)
-└── instruction/        # Instrukcje automatyzacji dla Copilot
+└── instructions/       # Instrukcje automatyzacji zależne od ścieżki
 ```
 
 ### Aliasy ścieżek (tsconfig.json)
@@ -591,6 +612,15 @@ export const test = mergeTests(apiLogger, apiRequests, pages);
 - **`api.fixture.ts`** — dostarcza `authorsApiRequest`, `authorsApiSteps`, `booksApiRequest`, `booksApiSteps`
 - **`pages.fixture.ts`** — dostarcza wszystkie Page Objects i Components
 
+### Selekcja testów i obserwowalność
+
+Projekt zawiera dwie funkcjonalności wspierające szybszy feedback i diagnozowanie testów:
+
+- **Selekcja testów dotkniętych zmianami** (`src/test-selection/`) buduje graf lokalnych zależności na podstawie importów TypeScript w specyfikacjach. `npm run test:affected` porównuje bieżący branch z `main` (lub w CI z `origin/<GITHUB_BASE_REF>`) i uruchamia tylko testy zależne od zmienionych plików. Zmiany globalnej konfiguracji, konfiguracji TypeScript, plików package lub instrukcji `.github/` uruchamiają celowo cały zestaw.
+- **Reporter obserwowalności** (`src/observability/reporter.ts`) zapisuje jeden obiekt JSON w każdym wierszu pliku `.observability/run-<id>.jsonl`. Rejestruje uruchomienie, status testu, retry, czas trwania, kroki, cele nieudanych akcji, oczyszczone błędy i ścieżki artefaktów. `src/core/global-setup.ts` przygotowuje środowisko uruchomienia, a `playwright.config.ts` rejestruje reporter HTML oraz własny reporter obserwowalności.
+
+Wygenerowane pliki `.observability/` są lokalnymi artefaktami uruchomień i nie powinny być commitowane.
+
 ---
 
 ## Rozwiązania AI — GitHub Copilot Agents
@@ -678,7 +708,7 @@ Plik [AGENTS.md](AGENTS.md) jest ładowany automatycznie przez GitHub Copilot do
 - Preferowany porządek lokatorów Playwright
 - Zasady asercji (web-first, auto-retrying)
 
-Plik `.github/instruction/setup-playwright-project.instructions.md` pozwala agentowi `Copilot` na jednorazowe automatyczne **tworzenie całego szkieletu projektu** od zera zgodnie z architekturą opisaną w tym README.
+Katalog `.github/instructions/` zawiera reguły zależne od ścieżki dla testów API, lokatorów UI i bezpieczeństwa typów TypeScript. Instrukcje uzupełniają plik `AGENTS.md` i są automatycznie stosowane do pasujących plików.
 
 ### API Test Code Review — model GPT-5.3-Codex
 
@@ -758,6 +788,7 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 | `npm run test:debug` | Playwright Inspector (tryb debugowania) |
 | `npm run test:report` | Otwarcie raportu HTML |
 | `npm run test:list` | Listowanie wszystkich wykrytych testów |
+| `npm run test:affected` | Uruchomienie testów dotkniętych zmianami; przy zmianach globalnych uruchamia cały zestaw |
 
 ### Tagowanie testów
 
@@ -772,6 +803,9 @@ npx playwright test --grep @books-management
 
 # Tylko testy API autorów
 npx playwright test --grep "@api @authors"
+
+# Testy dotknięte zmianami bieżącego brancha
+npm run test:affected
 ```
 
 ---
