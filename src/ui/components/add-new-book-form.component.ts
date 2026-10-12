@@ -20,10 +20,7 @@ export class AddNewBookFormComponent {
   }
 
   getAuthorCheckboxLocator(authorName: string): Locator {
-    return this.root
-      .getByText(authorName, { exact: true })
-      .locator('..')
-      .getByRole('checkbox');
+    return this.root.getByText(authorName, { exact: true }).locator('..').getByRole('checkbox');
   }
 
   async fillForm(title: string, price: string, quantity: string): Promise<void> {

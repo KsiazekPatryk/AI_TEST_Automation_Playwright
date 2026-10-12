@@ -1,4 +1,5 @@
 import { getRandomAuthorPayload, getRandomAuthorOverridePayload } from '@api/factories/author.factory';
+import { PatchAuthorPayload } from '@api/models/author.model';
 import {
   HTTP_400_BAD_REQUEST,
   HTTP_401_UNAUTHORIZED,
@@ -127,7 +128,7 @@ test.describe('PATCH /authors/{id} 4xx contract gaps', { tag: ['@api', '@authors
   }) => {
     const author = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.push(author.id);
-    const payload = getRandomAuthorOverridePayload({ firstName: null });
+    const payload = getRandomAuthorOverridePayload({ firstName: null } as unknown as PatchAuthorPayload);
 
     const requestResult = PatchRequestSchema.safeParse(payload);
     expect(requestResult.success).toBe(false);

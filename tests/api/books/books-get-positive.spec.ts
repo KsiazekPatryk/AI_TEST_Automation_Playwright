@@ -3,6 +3,8 @@ import { faker } from '@faker-js/faker';
 import { getRandomAuthorPayload } from '@api/factories/author.factory';
 import { getRandomBookOverridePayload } from '@api/factories/book.factory';
 import { RestBookResponse } from '@api/models/book.model';
+import { AuthorsAPISteps } from '@api/steps/authors/authors.api.steps';
+import { BooksAPISteps } from '@api/steps/books/books.api.steps';
 
 const FORBIDDEN_RESPONSE_KEYS = ['password', 'token', 'secret', 'apiKey'];
 const DEFAULT_BOOK_DATA = { year: 2026, price: 49.99, available: 10 } as const;
@@ -20,11 +22,7 @@ function bookMatchesTitle(book: RestBookResponse, title: string): boolean {
 
 function bookMatchesAuthor(book: RestBookResponse, authorName: string): boolean {
   return (book.authors ?? []).some((author) =>
-    [author.firstName, author.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-      .includes(authorName.toLowerCase()),
+    [author.firstName, author.lastName].filter(Boolean).join(' ').toLowerCase().includes(authorName.toLowerCase()),
   );
 }
 
@@ -57,8 +55,8 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
   });
 
   async function seedBookForFilters(
-    authorsApiSteps: Parameters<Parameters<typeof test>[1]>[0]['authorsApiSteps'],
-    booksApiSteps: Parameters<Parameters<typeof test>[1]>[0]['booksApiSteps'],
+    authorsApiSteps: AuthorsAPISteps,
+    booksApiSteps: BooksAPISteps,
     testId: string,
   ): Promise<SeededBook> {
     const author = await authorsApiSteps.create(getRandomAuthorPayload());
@@ -88,7 +86,10 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
     expectNoSensitiveFields(body);
   });
 
-  test('should retrieve books filtered by title for POS-BOOKS-GET-002', async ({ authorsApiSteps, booksApiSteps }, testInfo) => {
+  test('should retrieve books filtered by title for POS-BOOKS-GET-002', async ({
+    authorsApiSteps,
+    booksApiSteps,
+  }, testInfo) => {
     const { title } = await seedBookForFilters(authorsApiSteps, booksApiSteps, testInfo.testId);
     const body = await booksApiSteps.getBooks({ title });
 
@@ -97,7 +98,10 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
     expectNoSensitiveFields(body);
   });
 
-  test('should retrieve books filtered by author for POS-BOOKS-GET-003', async ({ authorsApiSteps, booksApiSteps }, testInfo) => {
+  test('should retrieve books filtered by author for POS-BOOKS-GET-003', async ({
+    authorsApiSteps,
+    booksApiSteps,
+  }, testInfo) => {
     const { authorName } = await seedBookForFilters(authorsApiSteps, booksApiSteps, testInfo.testId);
     const body = await booksApiSteps.getBooks({ author: authorName });
 
@@ -106,7 +110,10 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
     expectNoSensitiveFields(body);
   });
 
-  test('should retrieve books filtered by title and author for POS-BOOKS-GET-004', async ({ authorsApiSteps, booksApiSteps }, testInfo) => {
+  test('should retrieve books filtered by title and author for POS-BOOKS-GET-004', async ({
+    authorsApiSteps,
+    booksApiSteps,
+  }, testInfo) => {
     const { title, authorName } = await seedBookForFilters(authorsApiSteps, booksApiSteps, testInfo.testId);
     const body = await booksApiSteps.getBooks({ title, author: authorName });
 

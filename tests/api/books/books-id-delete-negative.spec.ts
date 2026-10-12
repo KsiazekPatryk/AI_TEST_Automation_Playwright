@@ -5,11 +5,13 @@ import { HTTP_400_BAD_REQUEST } from '@api/consts/http.status.codes.const';
 import { parseResponse } from '@utils/parse.response.utils';
 import { z } from 'zod';
 
-const DeleteErrorSchema = z.object({
-  status: z.number().int(),
-  error: z.string(),
-  message: z.union([z.string(), z.array(z.string())]),
-}).passthrough();
+const DeleteErrorSchema = z
+  .object({
+    status: z.number().int(),
+    error: z.string(),
+    message: z.union([z.string(), z.array(z.string())]),
+  })
+  .passthrough();
 
 type DeleteErrorBody = z.infer<typeof DeleteErrorSchema>;
 
@@ -32,9 +34,7 @@ const invalidPathIds = [
 
 test.describe('DELETE /books/{id} 4xx negative contract coverage', { tag: ['@api', '@books', '@regression'] }, () => {
   invalidPathIds.forEach(({ description, id, testCaseId }) => {
-    test(`should return 400 for ${description} [${testCaseId}]`, async ({
-      booksApiRequest,
-    }) => {
+    test(`should return 400 for ${description} [${testCaseId}]`, async ({ booksApiRequest }) => {
       const numericId = Number(id);
 
       expect(Number.isInteger(numericId)).toBe(false);

@@ -47,11 +47,17 @@ test.describe('PATCH /books/{id} schema', { tag: ['@api', '@books', '@schema', '
     const payload = getRandomBookOverridePayload({} satisfies PatchBookPayload);
 
     const requestSchemaResult = PatchBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    expect(
+      requestSchemaResult.success,
+      requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+    ).toBe(true);
 
     const responseBody = await booksApiSteps.patchBook(bookId, payload);
     const responseSchemaResult = PatchBookResponseSchema.safeParse(responseBody);
-    expect(responseSchemaResult.success, responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues)).toBe(true);
+    expect(
+      responseSchemaResult.success,
+      responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues),
+    ).toBe(true);
     expectNoSensitiveFields(responseBody);
 
     const updatedBook = await booksApiSteps.getBookById(bookId);
@@ -66,55 +72,68 @@ test.describe('PATCH /books/{id} schema', { tag: ['@api', '@books', '@schema', '
     const payload = getRandomBookOverridePayload({} satisfies PatchBookPayload);
 
     const requestSchemaResult = PatchBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    expect(
+      requestSchemaResult.success,
+      requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+    ).toBe(true);
 
     const responseBody = await booksApiSteps.patchBook(bookId, payload);
     const responseSchemaResult = PatchBookResponseSchema.safeParse(responseBody);
-    expect(responseSchemaResult.success, responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues)).toBe(true);
+    expect(
+      responseSchemaResult.success,
+      responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues),
+    ).toBe(true);
     expectNoSensitiveFields(responseBody);
   });
 });
 
-test.describe('PATCH /books/{id} schema contract drift', { tag: ['@api', '@books', '@schema', '@contract-drift'] }, () => {
-  const createdBookIds: number[] = [];
-  const createdAuthorIds: number[] = [];
+test.describe(
+  'PATCH /books/{id} schema contract drift',
+  { tag: ['@api', '@books', '@schema', '@contract-drift'] },
+  () => {
+    const createdBookIds: number[] = [];
+    const createdAuthorIds: number[] = [];
 
-  async function createBookForPatch(authorsApiSteps: AuthorsAPISteps, booksApiSteps: BooksAPISteps): Promise<number> {
-    const author = await authorsApiSteps.create(getRandomAuthorPayload());
-    createdAuthorIds.push(author.id);
+    async function createBookForPatch(authorsApiSteps: AuthorsAPISteps, booksApiSteps: BooksAPISteps): Promise<number> {
+      const author = await authorsApiSteps.create(getRandomAuthorPayload());
+      createdAuthorIds.push(author.id);
 
-    const book = await booksApiSteps.createBook(getRandomBookOverridePayload({ authors: [author.id] }));
-    createdBookIds.push(book.id);
+      const book = await booksApiSteps.createBook(getRandomBookOverridePayload({ authors: [author.id] }));
+      createdBookIds.push(book.id);
 
-    return book.id;
-  }
-
-  test.afterEach(async ({ authorsApiSteps, booksApiSteps }) => {
-    for (const bookId of createdBookIds) {
-      await booksApiSteps.deleteBook(bookId);
+      return book.id;
     }
-    createdBookIds.length = 0;
 
-    for (const authorId of createdAuthorIds) {
-      await authorsApiSteps.delete(authorId);
-    }
-    createdAuthorIds.length = 0;
-  });
+    test.afterEach(async ({ authorsApiSteps, booksApiSteps }) => {
+      for (const bookId of createdBookIds) {
+        await booksApiSteps.deleteBook(bookId);
+      }
+      createdBookIds.length = 0;
 
-  test('should expose 500 for documented object-valued response contract', async ({
-    authorsApiSteps,
-    booksApiRequest,
-    booksApiSteps,
-  }) => {
-    const bookId = await createBookForPatch(authorsApiSteps, booksApiSteps);
-    const payload = getRandomBookOverridePayload({ metadata: { source: 'contract-test' } });
+      for (const authorId of createdAuthorIds) {
+        await authorsApiSteps.delete(authorId);
+      }
+      createdAuthorIds.length = 0;
+    });
 
-    const requestSchemaResult = PatchBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    test('should expose 500 for documented object-valued response contract', async ({
+      authorsApiSteps,
+      booksApiRequest,
+      booksApiSteps,
+    }) => {
+      const bookId = await createBookForPatch(authorsApiSteps, booksApiSteps);
+      const payload = getRandomBookOverridePayload({ metadata: { source: 'contract-test' } });
 
-    const response = await booksApiRequest.patchBook(bookId, payload);
+      const requestSchemaResult = PatchBookPayloadSchema.safeParse(payload);
+      expect(
+        requestSchemaResult.success,
+        requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+      ).toBe(true);
 
-    expect(response.status()).toBe(HTTP_500_INTERNAL_SERVER_ERROR);
-    expect(response.headers()['content-type']).toContain('application/json');
-  });
-});
+      const response = await booksApiRequest.patchBook(bookId, payload);
+
+      expect(response.status()).toBe(HTTP_500_INTERNAL_SERVER_ERROR);
+      expect(response.headers()['content-type']).toContain('application/json');
+    });
+  },
+);

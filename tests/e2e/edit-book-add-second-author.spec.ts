@@ -42,9 +42,7 @@ test.describe('E2E — Edit Book: Add Second Author', { tag: ['@e2e', '@books-ma
       getRandomAuthorPayload({ lastName: `${faker.person.lastName()}-${uniqueB}` }),
     );
 
-    book = await booksApiSteps.createBook(
-      getRandomBookOverridePayload({ authors: [authorA.id] }),
-    );
+    book = await booksApiSteps.createBook(getRandomBookOverridePayload({ authors: [authorA.id] }));
 
     const setupBook = await booksApiSteps.getBookById(book.id);
     expect(setupBook.authors).toHaveLength(1);
@@ -97,4 +95,3 @@ test.describe('E2E — Edit Book: Add Second Author', { tag: ['@e2e', '@books-ma
     expect(updatedBook.available).toBe(book.available);
   });
 });
-

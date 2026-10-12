@@ -52,7 +52,9 @@ test.describe('POST /authors — positive scenarios', { tag: ['@api', '@authors'
     });
   });
 
-  test('should persist the created author and make it retrievable by GET /authors/:id', async ({ authorsApiRequest }) => {
+  test('should persist the created author and make it retrievable by GET /authors/:id', async ({
+    authorsApiRequest,
+  }) => {
     const payload = getRandomAuthorPayload();
 
     const createResponse = await test.step('POST /authors', () => authorsApiRequest.create(payload));
@@ -63,9 +65,7 @@ test.describe('POST /authors — positive scenarios', { tag: ['@api', '@authors'
     const created = await parseResponse<AuthorResponse>(createResponse);
     createdIds.push(created.id);
 
-    const getResponse = await test.step(`GET /authors/${created.id}`, () =>
-      authorsApiRequest.getById(created.id),
-    );
+    const getResponse = await test.step(`GET /authors/${created.id}`, () => authorsApiRequest.getById(created.id));
 
     await test.step('assert retrieved author matches created author', () => {
       expect(getResponse.status()).toBe(HTTP_200_OK);
@@ -123,6 +123,4 @@ test.describe('POST /authors — positive scenarios', { tag: ['@api', '@authors'
       expect(body.lastName).toBe('Sartre');
     });
   });
-
 });
-

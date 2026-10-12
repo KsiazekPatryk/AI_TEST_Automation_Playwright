@@ -51,7 +51,7 @@ test.describe('GET /authors schema', { tag: ['@api', '@authors', '@schema', '@sm
     const allowedKeys = new Set(['id', 'firstName', 'lastName']);
 
     for (const author of body) {
-      const extraKeys = Object.keys(author as Record<string, unknown>).filter(k => !allowedKeys.has(k));
+      const extraKeys = Object.keys(author as Record<string, unknown>).filter((k) => !allowedKeys.has(k));
       expect(extraKeys, `Unexpected fields found: ${extraKeys.join(', ')}`).toHaveLength(0);
     }
   });
@@ -68,7 +68,10 @@ test.describe('GET /authors schema', { tag: ['@api', '@authors', '@schema', '@sm
 
     for (const author of body) {
       if (author.id !== undefined) {
-        expect(Number.isInteger(author.id), `id should be integer, got: ${typeof author.id} (${author.id})`).toBeTruthy();
+        expect(
+          Number.isInteger(author.id),
+          `id should be integer, got: ${typeof author.id} (${author.id})`,
+        ).toBeTruthy();
       }
     }
   });
@@ -87,7 +90,7 @@ test.describe('GET /authors schema', { tag: ['@api', '@authors', '@schema', '@sm
       if (author.firstName !== undefined) {
         expect(
           typeof author.firstName === 'string' || author.firstName === null,
-          `firstName should be string or null, got: ${typeof author.firstName}`
+          `firstName should be string or null, got: ${typeof author.firstName}`,
         ).toBeTruthy();
       }
     }
@@ -107,7 +110,7 @@ test.describe('GET /authors schema', { tag: ['@api', '@authors', '@schema', '@sm
       if (author.lastName !== undefined) {
         expect(
           typeof author.lastName === 'string' || author.lastName === null,
-          `lastName should be string or null, got: ${typeof author.lastName}`
+          `lastName should be string or null, got: ${typeof author.lastName}`,
         ).toBeTruthy();
       }
     }

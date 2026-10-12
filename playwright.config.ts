@@ -12,10 +12,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   maxFailures: process.env.CI ? 10 : undefined,
-  reporter: [
-    ['html', { open: 'never' }],
-    ['./src/observability/reporter.ts'],
-  ],
+  reporter: [['html', { open: 'never' }], ['./src/observability/reporter.ts']],
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',

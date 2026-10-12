@@ -358,6 +358,12 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 | `npm run test:list` | List all discovered tests |
 | `npm run test:affected` | Run specs affected by the current diff; fall back to the full suite for global changes |
 
+#### Continuous Integration and Reports
+
+GitHub Actions runs type checking, lint, formatting checks, and the full API/UI/E2E suite on pull requests to `main`, pushes to `main` and `CI/CD`, and manual dispatches. Configure the repository Actions variables `API_URL` and `UI_URL` to point to a dedicated test environment; if not configured, the workflow falls back to the default demo environments (`https://bookstoreapi.up.railway.app` and `https://ksiegarnia.up.railway.app`).
+
+Playwright reports and observability logs are retained as workflow artifacts for seven days. Public GitHub Pages publication is opt-in: set the repository Actions variable `PUBLISH_REPORT=true` only when report contents are safe to expose, then enable Pages with GitHub Actions as the deployment source. Require the `test` job as a status check in branch protection. The test suite exercises an external application, so this workflow does not deploy that application.
+
 #### Test Tagging
 
 Tests are tagged for easy filtering:
@@ -429,6 +435,8 @@ test('scenario name', async ({ fixtures... }) => {
 | `API_URL` | Base URL of the REST API | `https://bookstoreapi.up.railway.app` |
 | `LOGGER` | Enable/disable HTTP logging in the console | `true` / `false` |
 | `OPENAPI_SPEC` | Path to the OpenAPI file (used by AI agents) | `docs/openapi/bookstoreapi.openapi.json` |
+
+In GitHub Actions, repository variables `API_URL` and `UI_URL` can optionally be configured for a dedicated non-production test environment (falling back to the demo URLs if unset).
 
 > Never commit the `.env` file. Update `.env.example` when adding new variables.
 
@@ -790,6 +798,12 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 | `npm run test:list` | Listowanie wszystkich wykrytych testów |
 | `npm run test:affected` | Uruchomienie testów dotkniętych zmianami; przy zmianach globalnych uruchamia cały zestaw |
 
+### CI/CD i raporty
+
+GitHub Actions uruchamia sprawdzenie typów, lint, formatowanie oraz pełny zestaw API/UI/E2E dla pull requestów do `main`, pushy do `main` i `CI/CD` oraz ręcznych uruchomień. W zmiennych repozytorium GitHub Actions można ustawić `API_URL` i `UI_URL` na dedykowane środowisko testowe; w przypadku braku konfiguracji workflow używa domyślnych środowisk demonstracyjnych (`https://bookstoreapi.up.railway.app` i `https://ksiegarnia.up.railway.app`).
+
+Raporty Playwright i logi obserwowalności są przechowywane jako artefakty workflow przez siedem dni. Publiczna publikacja raportu w GitHub Pages po pushu do `main` jest opcjonalna: ustaw zmienną repozytorium `PUBLISH_REPORT=true` tylko wtedy, gdy zawartość raportu może być publiczna, a następnie włącz GitHub Pages ze źródłem GitHub Actions. Ustaw job `test` jako wymagany status check w branch protection. Repozytorium testuje zewnętrzną aplikację, więc workflow jej nie wdraża.
+
 ### Tagowanie testów
 
 Testy są tagowane dla łatwego filtrowania:
@@ -863,6 +877,8 @@ test('scenario name', async ({ fixtures... }) => {
 | `OPENAPI_SPEC` | Ścieżka do pliku OpenAPI (używana przez agentów AI) | `docs/openapi/bookstoreapi.openapi.json` |
 
 > Nigdy nie commituj pliku `.env`. Plik `.env.example` należy aktualizować przy dodawaniu nowych zmiennych.
+
+W GitHub Actions można opcjonalnie skonfigurować zmienne repozytorium `API_URL` i `UI_URL` wskazujące dedykowane, nieprodukcyjne środowisko testowe (w przypadku braku konfiguracji stosowane są adresy demo). Publiczna publikacja raportu jest domyślnie wyłączona; włącz ją zmienną `PUBLISH_REPORT=true` tylko wtedy, gdy raport może być publiczny.
 
 ---
 

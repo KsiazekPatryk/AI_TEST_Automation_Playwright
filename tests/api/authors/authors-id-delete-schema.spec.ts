@@ -17,7 +17,10 @@ function isInt64String(value: string): boolean {
 }
 
 const AuthorIdPathParamSchema = z.union([
-  z.number().int().refine((value) => BigInt(value) >= MIN_INT64 && BigInt(value) <= MAX_INT64),
+  z
+    .number()
+    .int()
+    .refine((value) => BigInt(value) >= MIN_INT64 && BigInt(value) <= MAX_INT64),
   z.string().refine(isInt64String),
 ]);
 
@@ -33,7 +36,10 @@ test.describe('DELETE /authors/{id} 204 schema', { tag: ['@api', '@authors', '@s
     }
   });
 
-  test('should return documented 204 status with no response content', async ({ authorsApiRequest, authorsApiSteps }, testInfo) => {
+  test('should return documented 204 status with no response content', async ({
+    authorsApiRequest,
+    authorsApiSteps,
+  }, testInfo) => {
     const created = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.set(testInfo.testId, created.id);
     const authorIdResult = AuthorIdPathParamSchema.safeParse(created.id);
@@ -48,7 +54,10 @@ test.describe('DELETE /authors/{id} 204 schema', { tag: ['@api', '@authors', '@s
     createdAuthorIds.delete(testInfo.testId);
   });
 
-  test('should use the documented integer int64-compatible path parameter schema', async ({ authorsApiRequest, authorsApiSteps }, testInfo) => {
+  test('should use the documented integer int64-compatible path parameter schema', async ({
+    authorsApiRequest,
+    authorsApiSteps,
+  }, testInfo) => {
     const created = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.set(testInfo.testId, created.id);
     const authorIdResult = AuthorIdPathParamSchema.safeParse(created.id);
@@ -65,7 +74,10 @@ test.describe('DELETE /authors/{id} 204 schema', { tag: ['@api', '@authors', '@s
     createdAuthorIds.delete(testInfo.testId);
   });
 
-  test('should not parse or validate a response schema when DELETE returns 204', async ({ authorsApiRequest, authorsApiSteps }, testInfo) => {
+  test('should not parse or validate a response schema when DELETE returns 204', async ({
+    authorsApiRequest,
+    authorsApiSteps,
+  }, testInfo) => {
     const created = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.set(testInfo.testId, created.id);
     const deleteResponse = await authorsApiRequest.delete(created.id);

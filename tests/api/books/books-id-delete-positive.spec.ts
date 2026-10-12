@@ -27,7 +27,10 @@ async function createDisposableBook(
   }
 }
 
-async function cleanupBookIfNeeded(booksApiRequest: Pick<BooksAPIRequest, 'deleteBook'>, bookId: number): Promise<void> {
+async function cleanupBookIfNeeded(
+  booksApiRequest: Pick<BooksAPIRequest, 'deleteBook'>,
+  bookId: number,
+): Promise<void> {
   const response = await booksApiRequest.deleteBook(bookId);
   expect([HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND]).toContain(response.status());
 }
@@ -70,7 +73,7 @@ test.describe('DELETE /books/{id} 2xx positive scenarios', { tag: ['@api', '@boo
 
     expect(response.status()).toBe(HTTP_204_NO_CONTENT);
     expect(body).toBe('');
-  await expectBookDeleted(booksApiSteps, disposableBook.bookId);
+    await expectBookDeleted(booksApiSteps, disposableBook.bookId);
 
     disposableBook.bookDeleted = true;
   });

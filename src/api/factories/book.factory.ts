@@ -17,15 +17,16 @@ export function getRandomBookOverridePayload<T extends Partial<BookPayload> | Pa
   const overrideRecord: Record<string, unknown> = overrides;
   const bookPayloadKeys = ['title', 'authors', 'year', 'price', 'available'];
   const isPatchPayload = Object.entries(overrideRecord).every(
-    ([key, value]) => !bookPayloadKeys.includes(key) && typeof value === 'object' && value !== null && !Array.isArray(value),
+    ([key, value]) =>
+      !bookPayloadKeys.includes(key) && typeof value === 'object' && value !== null && !Array.isArray(value),
   );
 
   if (isPatchPayload) {
-    return overrides as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
+    return overrides as unknown as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
   }
 
   return {
     ...getRandomBookPayload(),
     ...overrides,
-  } as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
+  } as unknown as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
 }

@@ -2,6 +2,7 @@
 node_modules/
 playwright-report/
 test-results/
+.observability/
 .playwright-mcp/
 /blob-report/
 /playwright/.cache/
