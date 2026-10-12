@@ -12,5 +12,5 @@ export function getRandomAuthorPayload(overrides?: Partial<CreateAuthorPayload>)
 export function getRandomAuthorOverridePayload<T extends Partial<CreateAuthorPayload> | PatchAuthorPayload>(
   overrides: T,
 ): T extends PatchAuthorPayload ? PatchAuthorPayload : CreateAuthorPayload {
-  return overrides as T extends PatchAuthorPayload ? PatchAuthorPayload : CreateAuthorPayload;
+  return overrides as unknown as T extends PatchAuthorPayload ? PatchAuthorPayload : CreateAuthorPayload;
 }

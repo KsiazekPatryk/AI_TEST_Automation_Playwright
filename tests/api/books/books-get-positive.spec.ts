@@ -3,6 +3,8 @@ import { faker } from '@faker-js/faker';
 import { getRandomAuthorPayload } from '@api/factories/author.factory';
 import { getRandomBookOverridePayload } from '@api/factories/book.factory';
 import { RestBookResponse } from '@api/models/book.model';
+import { AuthorsAPISteps } from '@api/steps/authors/authors.api.steps';
+import { BooksAPISteps } from '@api/steps/books/books.api.steps';
 
 const FORBIDDEN_RESPONSE_KEYS = ['password', 'token', 'secret', 'apiKey'];
 const DEFAULT_BOOK_DATA = { year: 2026, price: 49.99, available: 10 } as const;
@@ -57,8 +59,8 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
   });
 
   async function seedBookForFilters(
-    authorsApiSteps: Parameters<Parameters<typeof test>[1]>[0]['authorsApiSteps'],
-    booksApiSteps: Parameters<Parameters<typeof test>[1]>[0]['booksApiSteps'],
+    authorsApiSteps: AuthorsAPISteps,
+    booksApiSteps: BooksAPISteps,
     testId: string,
   ): Promise<SeededBook> {
     const author = await authorsApiSteps.create(getRandomAuthorPayload());

@@ -21,11 +21,11 @@ export function getRandomBookOverridePayload<T extends Partial<BookPayload> | Pa
   );
 
   if (isPatchPayload) {
-    return overrides as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
+    return overrides as unknown as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
   }
 
   return {
     ...getRandomBookPayload(),
     ...overrides,
-  } as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
+  } as unknown as T extends PatchBookPayload ? PatchBookPayload : BookPayload;
 }

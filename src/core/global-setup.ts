@@ -15,9 +15,10 @@ export function requireEnv(name: string): string {
 }
 
 function requestedProjects(): string[] | undefined {
-  const flag = process.argv.find((a) => a.startsWith('--project='));
-  if (!flag) return undefined;
-  return [flag.slice('--project='.length)];
+  const projects = process.argv
+    .filter((arg) => arg.startsWith('--project='))
+    .flatMap((arg) => arg.slice('--project='.length).split(',').filter(Boolean));
+  return projects.length > 0 ? projects : undefined;
 }
 
 export default async function globalSetup(): Promise<void> {

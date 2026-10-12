@@ -11,7 +11,7 @@ test.describe('PUT /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, () =
 
   const assertBookMatchesPayload = (
     book: BookResponse,
-    payload: { title: string; year: number; price: number; available: number },
+    payload: { title?: string; year: number; price: number; available: number },
     expectedAuthorIds: number[],
   ): void => {
     expect(book.id).toBe(bookId);
