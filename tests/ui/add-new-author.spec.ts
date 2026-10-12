@@ -1,5 +1,5 @@
 import { test, expect } from '@fixtures/test.fixture';
-import { faker } from '@faker-js/faker';
+import { createAuthorData } from '@ui/factories/author.factory';
 
 test.describe('Authors page — add new author', { tag: ['@ui', '@authors'] }, () => {
   let firstName!: string;
@@ -7,8 +7,7 @@ test.describe('Authors page — add new author', { tag: ['@ui', '@authors'] }, (
   let existingAuthorIds = new Set<number>();
 
   test.beforeEach(async ({ authorsPage, authorsApiSteps }) => {
-    firstName = faker.person.firstName();
-    lastName = faker.person.lastName();
+    ({ firstName, lastName } = createAuthorData());
     existingAuthorIds = new Set((await authorsApiSteps.getAll({ firstName, lastName })).map(({ id }) => id));
     await authorsPage.navigate();
   });

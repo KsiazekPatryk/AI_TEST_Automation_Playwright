@@ -30,7 +30,7 @@ export class AddNewBookFormComponent {
   }
 
   async selectAuthor(authorName: string): Promise<void> {
-    await this.getAuthorCheckboxLocator(authorName).click();
+    await this.root.getByText(authorName, { exact: true }).click();
   }
 
   async submit(): Promise<void> {

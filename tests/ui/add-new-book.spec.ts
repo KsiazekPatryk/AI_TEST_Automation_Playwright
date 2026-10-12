@@ -68,6 +68,7 @@ test.describe('Books Management — add new book', { tag: ['@ui', '@books-manage
     await addNewBookForm.fillForm(book.title, book.price, book.quantity);
     await expect(addNewBookForm.getAuthorCheckboxLocator(`${author.firstName} ${author.lastName}`)).toBeVisible();
     await addNewBookForm.selectAuthor(`${author.firstName} ${author.lastName}`);
+    await expect(addNewBookForm.getAuthorCheckboxLocator(`${author.firstName} ${author.lastName}`)).toBeChecked();
     await addNewBookForm.submit();
 
     // Assert — book created, panel closed, row visible in table
