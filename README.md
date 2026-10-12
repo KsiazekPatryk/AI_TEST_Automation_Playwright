@@ -802,7 +802,7 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 
 GitHub Actions uruchamia sprawdzenie typów, lint, formatowanie oraz pełny zestaw API/UI/E2E dla pull requestów do `main`, pushy do `main` i `CI/CD` oraz ręcznych uruchomień. W zmiennych repozytorium GitHub Actions można ustawić `API_URL` i `UI_URL` na dedykowane środowisko testowe; w przypadku braku konfiguracji workflow używa domyślnych środowisk demonstracyjnych (`https://bookstoreapi.up.railway.app` i `https://ksiegarnia.up.railway.app`).
 
-Raporty Playwright i logi obserwowalności są przechowywane jako artefakty workflow przez siedem dni. Po udanym pushu do `main` raport HTML jest również publikowany przez GitHub Pages. W ustawieniach repozytorium włącz GitHub Pages ze źródłem GitHub Actions i ustaw job `test` jako wymagany status check. Repozytorium testuje zewnętrzną aplikację, więc workflow jej nie wdraża.
+Raporty Playwright i logi obserwowalności są przechowywane jako artefakty workflow przez siedem dni. Publiczna publikacja raportu w GitHub Pages po pushu do `main` jest opcjonalna: ustaw zmienną repozytorium `PUBLISH_REPORT=true` tylko wtedy, gdy zawartość raportu może być publiczna, a następnie włącz GitHub Pages ze źródłem GitHub Actions. Ustaw job `test` jako wymagany status check w branch protection. Repozytorium testuje zewnętrzną aplikację, więc workflow jej nie wdraża.
 
 ### Tagowanie testów
 
