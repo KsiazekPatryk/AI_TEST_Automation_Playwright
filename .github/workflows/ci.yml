@@ -41,11 +41,14 @@ jobs:
 
       - name: Validate test environment
         env:
-          API_URL: ${{ vars.API_URL }}
-          UI_URL: ${{ vars.UI_URL }}
+          API_URL: ${{ vars.API_URL || 'https://bookstoreapi.up.railway.app' }}
+          UI_URL: ${{ vars.UI_URL || 'https://ksiegarnia.up.railway.app' }}
         run: |
-          test -n "$API_URL" || { echo "::error::Set repository variable API_URL to a dedicated test API"; exit 1; }
-          test -n "$UI_URL" || { echo "::error::Set repository variable UI_URL to a dedicated test UI"; exit 1; }
+          test -n "$API_URL" || { echo "::error::API_URL must not be empty"; exit 1; }
+          test -n "$UI_URL" || { echo "::error::UI_URL must not be empty"; exit 1; }
+          if [ -z "${{ vars.API_URL }}" ] || [ -z "${{ vars.UI_URL }}" ]; then
+            echo "::notice::Repository variables API_URL / UI_URL are not configured; falling back to default demo environments."
+          fi
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -53,8 +56,8 @@ jobs:
       - name: Run API, UI, and E2E tests
         run: npm run test:all
         env:
-          API_URL: ${{ vars.API_URL }}
-          UI_URL: ${{ vars.UI_URL }}
+          API_URL: ${{ vars.API_URL || 'https://bookstoreapi.up.railway.app' }}
+          UI_URL: ${{ vars.UI_URL || 'https://ksiegarnia.up.railway.app' }}
           OPENAPI_SPEC: docs/openapi/bookstoreapi.openapi.json
           LOGGER: 'false'
 

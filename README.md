@@ -360,7 +360,7 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 
 #### Continuous Integration and Reports
 
-GitHub Actions runs type checking, lint, formatting checks, and the full API/UI/E2E suite on pull requests to `main`, pushes to `main` and `CI/CD`, and manual dispatches. Configure the repository Actions variables `API_URL` and `UI_URL` to point to a dedicated test environment; the workflow intentionally does not default to the shared demo services because tests create and update records.
+GitHub Actions runs type checking, lint, formatting checks, and the full API/UI/E2E suite on pull requests to `main`, pushes to `main` and `CI/CD`, and manual dispatches. Configure the repository Actions variables `API_URL` and `UI_URL` to point to a dedicated test environment; if not configured, the workflow falls back to the default demo environments (`https://bookstoreapi.up.railway.app` and `https://ksiegarnia.up.railway.app`).
 
 Playwright reports and observability logs are retained as workflow artifacts for seven days. Public GitHub Pages publication is opt-in: set the repository Actions variable `PUBLISH_REPORT=true` only when report contents are safe to expose, then enable Pages with GitHub Actions as the deployment source. Require the `test` job as a status check in branch protection. The test suite exercises an external application, so this workflow does not deploy that application.
 
@@ -436,7 +436,7 @@ test('scenario name', async ({ fixtures... }) => {
 | `LOGGER` | Enable/disable HTTP logging in the console | `true` / `false` |
 | `OPENAPI_SPEC` | Path to the OpenAPI file (used by AI agents) | `docs/openapi/bookstoreapi.openapi.json` |
 
-GitHub Actions additionally requires repository variables `API_URL` and `UI_URL` for a dedicated non-production test environment.
+In GitHub Actions, repository variables `API_URL` and `UI_URL` can optionally be configured for a dedicated non-production test environment (falling back to the demo URLs if unset).
 
 > Never commit the `.env` file. Update `.env.example` when adding new variables.
 
@@ -800,7 +800,7 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 
 ### CI/CD i raporty
 
-GitHub Actions uruchamia sprawdzenie typów, lint, formatowanie oraz pełny zestaw API/UI/E2E dla pull requestów do `main`, pushy do `main` i `CI/CD` oraz ręcznych uruchomień. W zmiennych repozytorium GitHub Actions ustaw `API_URL` i `UI_URL` na dedykowane środowisko testowe. Workflow celowo nie używa współdzielonego demo, ponieważ testy tworzą i aktualizują rekordy.
+GitHub Actions uruchamia sprawdzenie typów, lint, formatowanie oraz pełny zestaw API/UI/E2E dla pull requestów do `main`, pushy do `main` i `CI/CD` oraz ręcznych uruchomień. W zmiennych repozytorium GitHub Actions można ustawić `API_URL` i `UI_URL` na dedykowane środowisko testowe; w przypadku braku konfiguracji workflow używa domyślnych środowisk demonstracyjnych (`https://bookstoreapi.up.railway.app` i `https://ksiegarnia.up.railway.app`).
 
 Raporty Playwright i logi obserwowalności są przechowywane jako artefakty workflow przez siedem dni. Po udanym pushu do `main` raport HTML jest również publikowany przez GitHub Pages. W ustawieniach repozytorium włącz GitHub Pages ze źródłem GitHub Actions i ustaw job `test` jako wymagany status check. Repozytorium testuje zewnętrzną aplikację, więc workflow jej nie wdraża.
 
@@ -878,7 +878,7 @@ test('scenario name', async ({ fixtures... }) => {
 
 > Nigdy nie commituj pliku `.env`. Plik `.env.example` należy aktualizować przy dodawaniu nowych zmiennych.
 
-GitHub Actions wymaga dodatkowo zmiennych repozytorium `API_URL` i `UI_URL` wskazujących dedykowane, nieprodukcyjne środowisko testowe. Publiczna publikacja raportu jest domyślnie wyłączona; włącz ją zmienną `PUBLISH_REPORT=true` tylko wtedy, gdy raport może być publiczny.
+W GitHub Actions można opcjonalnie skonfigurować zmienne repozytorium `API_URL` i `UI_URL` wskazujące dedykowane, nieprodukcyjne środowisko testowe (w przypadku braku konfiguracji stosowane są adresy demo). Publiczna publikacja raportu jest domyślnie wyłączona; włącz ją zmienną `PUBLISH_REPORT=true` tylko wtedy, gdy raport może być publiczny.
 
 ---
 
