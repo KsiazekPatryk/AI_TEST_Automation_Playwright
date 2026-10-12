@@ -56,16 +56,21 @@ function findSpecFiles(dir: string): string[] {
 }
 
 function loadCompilerOptions(): ts.CompilerOptions {
-  // eslint-disable-next-line @typescript-eslint/unbound-method
   const configFile = ts.readConfigFile(TSCONFIG_PATH, ts.sys.readFile);
   if (configFile.error) {
-    throw new Error(`Failed to read tsconfig.json: ${ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n')}`);
+    throw new Error(
+      `Failed to read tsconfig.json: ${ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n')}`,
+    );
   }
   const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, REPO_ROOT);
   return parsed.options;
 }
 
-function collectLocalDependencies(entryFile: string, compilerOptions: ts.CompilerOptions, memo: Map<string, Set<string>>): Set<string> {
+function collectLocalDependencies(
+  entryFile: string,
+  compilerOptions: ts.CompilerOptions,
+  memo: Map<string, Set<string>>,
+): Set<string> {
   const cached = memo.get(entryFile);
   if (cached) return cached;
 

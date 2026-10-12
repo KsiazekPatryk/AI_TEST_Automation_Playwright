@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { test as base, APIRequestContext, APIResponse } from '@playwright/test';
 import chalk from 'chalk';
 chalk.level = 3;
@@ -12,7 +11,6 @@ const yel = chalk.hex('#f5c84a');
 const red = chalk.hex('#f24e4e');
 const white = chalk.hex('#f0f2ff');
 const dim = chalk.hex('#ccccda');
-const purp = chalk.hex('#8b83ff');
 
 const METHOD_BADGE: Record<string, chalk.Chalk> = {
   get: chalk.bgHex('#22d3a2').hex('#0d0f17').bold,
@@ -25,10 +23,6 @@ const METHOD_BADGE: Record<string, chalk.Chalk> = {
 };
 
 const HTTP_METHODS = ['get', 'post', 'put', 'patch', 'delete', 'head', 'fetch'] as const;
-
-function bar(n = 56): string {
-  return neon('━'.repeat(n));
-}
 
 function ts(): string {
   return dim(new Date().toISOString().slice(11, 23));

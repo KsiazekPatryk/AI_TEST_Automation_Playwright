@@ -16,7 +16,9 @@ test.describe('PUT /authors/{id} 2xx', { tag: ['@api', '@authors', '@smoke'] }, 
   });
 
   // TC-POS-001
-  test('TC-POS-001: should update author with both firstName and lastName and return 200', async ({ authorsApiSteps }) => {
+  test('TC-POS-001: should update author with both firstName and lastName and return 200', async ({
+    authorsApiSteps,
+  }) => {
     const payload = getRandomAuthorOverridePayload({ firstName: 'Jane', lastName: 'Austen' });
     const updated = await authorsApiSteps.update(author.id, payload);
 
@@ -37,7 +39,9 @@ test.describe('PUT /authors/{id} 2xx', { tag: ['@api', '@authors', '@smoke'] }, 
   });
 
   // TC-POS-005
-  test('TC-POS-005: should accept Unicode / non-ASCII characters in name fields and return 200', async ({ authorsApiSteps }) => {
+  test('TC-POS-005: should accept Unicode / non-ASCII characters in name fields and return 200', async ({
+    authorsApiSteps,
+  }) => {
     const payload = getRandomAuthorOverridePayload({ firstName: 'Søren', lastName: 'Kierkegaard' });
     await authorsApiSteps.update(author.id, payload);
     const fetched = await authorsApiSteps.getById(author.id);
@@ -47,7 +51,9 @@ test.describe('PUT /authors/{id} 2xx', { tag: ['@api', '@authors', '@smoke'] }, 
   });
 
   // TC-POS-006
-  test('TC-POS-006: should be idempotent — same PUT twice both return 200 and state matches last PUT', async ({ authorsApiSteps }) => {
+  test('TC-POS-006: should be idempotent — same PUT twice both return 200 and state matches last PUT', async ({
+    authorsApiSteps,
+  }) => {
     const payload = getRandomAuthorOverridePayload({ firstName: 'Leo', lastName: 'Tolstoy' });
     const first = await authorsApiSteps.update(author.id, payload);
     const second = await authorsApiSteps.update(author.id, payload);
@@ -62,8 +68,14 @@ test.describe('PUT /authors/{id} 2xx', { tag: ['@api', '@authors', '@smoke'] }, 
 
   // TC-POS-007
   test('TC-POS-007: should overwrite author data with different values on second PUT', async ({ authorsApiSteps }) => {
-    await authorsApiSteps.update(author.id, getRandomAuthorOverridePayload({ firstName: 'Anton', lastName: 'Chekhov' }));
-    await authorsApiSteps.update(author.id, getRandomAuthorOverridePayload({ firstName: 'Fyodor', lastName: 'Dostoevsky' }));
+    await authorsApiSteps.update(
+      author.id,
+      getRandomAuthorOverridePayload({ firstName: 'Anton', lastName: 'Chekhov' }),
+    );
+    await authorsApiSteps.update(
+      author.id,
+      getRandomAuthorOverridePayload({ firstName: 'Fyodor', lastName: 'Dostoevsky' }),
+    );
 
     const fetched = await authorsApiSteps.getById(author.id);
 

@@ -8,7 +8,7 @@ export function requireEnv(name: string): string {
   if (!value || value.trim() === '') {
     throw new Error(
       `[global-setup] Missing required environment variable "${name}". ` +
-        `Please make sure it is defined in your .env file or process environment.`
+        `Please make sure it is defined in your .env file or process environment.`,
     );
   }
   return value.trim();

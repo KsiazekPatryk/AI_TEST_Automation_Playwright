@@ -14,7 +14,10 @@ test.describe('DELETE /authors/{id} 2xx', { tag: ['@api', '@authors', '@smoke'] 
     }
   });
 
-  test('should delete an existing author by ID and return 204 with empty body', async ({ authorsApiRequest, authorsApiSteps }, testInfo) => {
+  test('should delete an existing author by ID and return 204 with empty body', async ({
+    authorsApiRequest,
+    authorsApiSteps,
+  }, testInfo) => {
     const created = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.set(testInfo.testId, created.id);
     expect(Number.isInteger(created.id)).toBe(true);
@@ -28,7 +31,10 @@ test.describe('DELETE /authors/{id} 2xx', { tag: ['@api', '@authors', '@smoke'] 
     createdAuthorIds.delete(testInfo.testId);
   });
 
-  test('should delete an author using an int64-compatible numeric path parameter', async ({ authorsApiRequest, authorsApiSteps }, testInfo) => {
+  test('should delete an author using an int64-compatible numeric path parameter', async ({
+    authorsApiRequest,
+    authorsApiSteps,
+  }, testInfo) => {
     const created = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.set(testInfo.testId, created.id);
     const authorId = created.id;

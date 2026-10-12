@@ -1,2 +1,0 @@
-{"type":"run","phase":"begin","runId":"a5a69f9d","startedAt":"2026-09-20T11:43:37.931Z","ci":false,"projects":["api","ui","e2e"]}
-{"type":"run","phase":"end","runId":"a5a69f9d","endedAt":"2026-09-20T11:43:37.967Z","ci":false,"totals":{"passed":0,"failed":0,"skipped":0,"flaky":0}}

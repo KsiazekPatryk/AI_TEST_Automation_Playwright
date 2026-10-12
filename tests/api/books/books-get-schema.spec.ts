@@ -58,7 +58,9 @@ test.describe('GET /books schema', { tag: ['@api', '@books', '@schema', '@smoke'
       expect(typeof book.title === 'string' || typeof book.title === 'undefined').toBe(true);
       expect(typeof book.year === 'number' || typeof book.year === 'undefined').toBe(true);
       expect(typeof book.price === 'number' || typeof book.price === 'undefined').toBe(true);
-      expect(typeof book.coverUrl === 'string' || book.coverUrl === null || typeof book.coverUrl === 'undefined').toBe(true);
+      expect(typeof book.coverUrl === 'string' || book.coverUrl === null || typeof book.coverUrl === 'undefined').toBe(
+        true,
+      );
       expect(typeof book.available === 'number' || typeof book.available === 'undefined').toBe(true);
     }
   });
@@ -105,7 +107,9 @@ test.describe('GET /books schema', { tag: ['@api', '@books', '@schema', '@smoke'
     }
   });
 
-  test('should return no undocumented pagination or metadata wrapper for SCHEMA-BOOKS-GET-007', async ({ booksApiSteps }) => {
+  test('should return no undocumented pagination or metadata wrapper for SCHEMA-BOOKS-GET-007', async ({
+    booksApiSteps,
+  }) => {
     const body = await booksApiSteps.getBooks();
 
     expect(Array.isArray(body)).toBe(true);

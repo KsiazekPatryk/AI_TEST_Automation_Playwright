@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "engines": {
-    "node": ">=24 <25"
+    "node": ">=24 <25",
+    "npm": ">=10"
   },
   "scripts": {
     "test": "playwright test",
@@ -21,7 +22,11 @@
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
     "test:report": "playwright show-report",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\" package.json tsconfig.json playwright.config.ts eslint.config.mjs \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"src/**/*.ts\" \"tests/**/*.ts\" package.json tsconfig.json playwright.config.ts eslint.config.mjs \".github/workflows/*.yml\""
   },
   "repository": {
     "type": "git",
@@ -35,10 +40,16 @@
   },
   "homepage": "https://github.com/KsiazekPatryk/AI_TEST_Automation_Playwright#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.9.3",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10",
     "tsx": "^4.23.15",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.71.1"
   },
   "prettier": {
     "tabWidth": 2,
@@ -48,7 +59,7 @@
     "printWidth": 120
   },
   "dependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "^10.6.0",
     "chalk": "^4.1.2",
     "dotenv": "^17.4.2",
     "zod": "^4.4.3"

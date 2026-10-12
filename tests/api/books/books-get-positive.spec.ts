@@ -22,11 +22,7 @@ function bookMatchesTitle(book: RestBookResponse, title: string): boolean {
 
 function bookMatchesAuthor(book: RestBookResponse, authorName: string): boolean {
   return (book.authors ?? []).some((author) =>
-    [author.firstName, author.lastName]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase()
-      .includes(authorName.toLowerCase()),
+    [author.firstName, author.lastName].filter(Boolean).join(' ').toLowerCase().includes(authorName.toLowerCase()),
   );
 }
 
@@ -90,7 +86,10 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
     expectNoSensitiveFields(body);
   });
 
-  test('should retrieve books filtered by title for POS-BOOKS-GET-002', async ({ authorsApiSteps, booksApiSteps }, testInfo) => {
+  test('should retrieve books filtered by title for POS-BOOKS-GET-002', async ({
+    authorsApiSteps,
+    booksApiSteps,
+  }, testInfo) => {
     const { title } = await seedBookForFilters(authorsApiSteps, booksApiSteps, testInfo.testId);
     const body = await booksApiSteps.getBooks({ title });
 
@@ -99,7 +98,10 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
     expectNoSensitiveFields(body);
   });
 
-  test('should retrieve books filtered by author for POS-BOOKS-GET-003', async ({ authorsApiSteps, booksApiSteps }, testInfo) => {
+  test('should retrieve books filtered by author for POS-BOOKS-GET-003', async ({
+    authorsApiSteps,
+    booksApiSteps,
+  }, testInfo) => {
     const { authorName } = await seedBookForFilters(authorsApiSteps, booksApiSteps, testInfo.testId);
     const body = await booksApiSteps.getBooks({ author: authorName });
 
@@ -108,7 +110,10 @@ test.describe('GET /books 2xx', { tag: ['@api', '@books', '@smoke'] }, () => {
     expectNoSensitiveFields(body);
   });
 
-  test('should retrieve books filtered by title and author for POS-BOOKS-GET-004', async ({ authorsApiSteps, booksApiSteps }, testInfo) => {
+  test('should retrieve books filtered by title and author for POS-BOOKS-GET-004', async ({
+    authorsApiSteps,
+    booksApiSteps,
+  }, testInfo) => {
     const { title, authorName } = await seedBookForFilters(authorsApiSteps, booksApiSteps, testInfo.testId);
     const body = await booksApiSteps.getBooks({ title, author: authorName });
 

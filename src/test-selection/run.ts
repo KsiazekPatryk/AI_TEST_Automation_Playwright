@@ -6,7 +6,9 @@ function main(): void {
   const { specs, runAll, changedFiles } = getAffectedSpecs(baseRef);
 
   process.stderr.write(`[test-selection] diffing against ${baseRef}\n`);
-  process.stderr.write(`[test-selection] changed files:\n${changedFiles.map((f) => `  - ${f}`).join('\n') || '  (none)'}\n`);
+  process.stderr.write(
+    `[test-selection] changed files:\n${changedFiles.map((f) => `  - ${f}`).join('\n') || '  (none)'}\n`,
+  );
 
   if (runAll) {
     process.stderr.write('[test-selection] change touches global config / build files — running the full test suite\n');
@@ -19,7 +21,9 @@ function main(): void {
     return;
   }
 
-  process.stderr.write(`[test-selection] running ${specs.length} affected spec(s):\n${specs.map((f) => `  - ${f}`).join('\n')}\n`);
+  process.stderr.write(
+    `[test-selection] running ${specs.length} affected spec(s):\n${specs.map((f) => `  - ${f}`).join('\n')}\n`,
+  );
   execFileSync('npx', ['playwright', 'test', ...specs], { stdio: 'inherit' });
 }
 

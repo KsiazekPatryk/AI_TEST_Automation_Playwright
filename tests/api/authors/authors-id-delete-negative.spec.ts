@@ -19,7 +19,10 @@ function isInt64String(value: string): boolean {
 }
 
 const OpenApiPathParamSchema = z.union([
-  z.number().int().refine((value) => BigInt(value) >= MIN_INT64 && BigInt(value) <= MAX_INT64),
+  z
+    .number()
+    .int()
+    .refine((value) => BigInt(value) >= MIN_INT64 && BigInt(value) <= MAX_INT64),
   z.string().refine(isInt64String),
 ]);
 
@@ -94,7 +97,9 @@ test.describe('DELETE /authors/{id} 4xx', { tag: ['@api', '@authors', '@regressi
 
   test('should document that DELETE /authors without an id is not an OpenAPI operation', () => {
     const openApiSpecPath = process.env.OPENAPI_SPEC ?? 'docs/openapi/bookstoreapi.openapi.json';
-    const openApi = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), openApiSpecPath), 'utf-8')) as OpenApiDocument;
+    const openApi = JSON.parse(
+      fs.readFileSync(path.resolve(process.cwd(), openApiSpecPath), 'utf-8'),
+    ) as OpenApiDocument;
 
     expect(openApi.paths['/authors/{id}']?.delete).toBeDefined();
     expect(openApi.paths['/authors']?.delete).toBeUndefined();

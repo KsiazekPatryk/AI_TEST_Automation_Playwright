@@ -13,11 +13,13 @@ import { z } from 'zod';
 const JSON_HEADERS = { 'Content-Type': 'application/json', Accept: '*/*' };
 const DEFAULT_BOOK_POST_BASELINE = { year: 2026, price: 49.99, available: 10 } as const;
 
-const ErrorBodySchema = z.object({
-  status: z.number().int(),
-  error: z.string(),
-  message: z.union([z.string(), z.array(z.string())]),
-}).passthrough();
+const ErrorBodySchema = z
+  .object({
+    status: z.number().int(),
+    error: z.string(),
+    message: z.union([z.string(), z.array(z.string())]),
+  })
+  .passthrough();
 
 type ErrorBody = z.infer<typeof ErrorBodySchema>;
 
@@ -77,7 +79,10 @@ test.describe('POST /books 4xx negative scenarios', { tag: ['@api', '@books', '@
     return body;
   }
 
-  async function expectInvalidBookPayloadRejected(booksApiRequest: Pick<BooksAPIRequest, 'createBook'>, payload: InvalidBookPayload): Promise<void> {
+  async function expectInvalidBookPayloadRejected(
+    booksApiRequest: Pick<BooksAPIRequest, 'createBook'>,
+    payload: InvalidBookPayload,
+  ): Promise<void> {
     const response = await booksApiRequest.createBook(payload, JSON_HEADERS);
 
     if (response.status() === 201) {
@@ -96,7 +101,10 @@ test.describe('POST /books 4xx negative scenarios', { tag: ['@api', '@books', '@
   ];
 
   missingRequiredFieldCases.forEach(({ testCaseId, fieldName }) => {
-    test(`should reject missing required field ${fieldName} [${testCaseId}]`, async ({ authorsApiSteps, booksApiRequest }) => {
+    test(`should reject missing required field ${fieldName} [${testCaseId}]`, async ({
+      authorsApiSteps,
+      booksApiRequest,
+    }) => {
       const [authorId] = await createAuthors(authorsApiSteps, 1);
       const payload = omitBookPayloadField(fieldName, authorId);
 
@@ -136,7 +144,11 @@ test.describe('POST /books 4xx negative scenarios', { tag: ['@api', '@books', '@
   boundaryViolationCases.forEach(({ testCaseId, description, overrides, assertion }) => {
     test(`should reject ${description} [${testCaseId}]`, async ({ authorsApiSteps, booksApiRequest }) => {
       const [authorId] = await createAuthors(authorsApiSteps, 1);
-      const payload = getRandomBookOverridePayload({ authors: [authorId], ...DEFAULT_BOOK_POST_BASELINE, ...overrides });
+      const payload = getRandomBookOverridePayload({
+        authors: [authorId],
+        ...DEFAULT_BOOK_POST_BASELINE,
+        ...overrides,
+      });
 
       assertion(payload);
 

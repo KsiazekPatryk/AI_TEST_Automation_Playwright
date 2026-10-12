@@ -27,9 +27,7 @@ test.describe('PUT /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, () =
   test.beforeAll(async ({ authorsApiSteps, booksApiSteps }) => {
     authorA = await authorsApiSteps.create(getRandomAuthorPayload());
     authorB = await authorsApiSteps.create(getRandomAuthorPayload());
-    const book = await booksApiSteps.createBook(
-      getRandomBookOverridePayload({ authors: [authorA.id] }),
-    );
+    const book = await booksApiSteps.createBook(getRandomBookOverridePayload({ authors: [authorA.id] }));
     bookId = book.id;
   });
 
@@ -102,7 +100,9 @@ test.describe('PUT /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, () =
   });
 
   // TC-POS-PUT-008
-  test('should update book twice with same payload and return 200 both times (idempotent)', async ({ booksApiSteps }) => {
+  test('should update book twice with same payload and return 200 both times (idempotent)', async ({
+    booksApiSteps,
+  }) => {
     const payload = getRandomBookOverridePayload({ authors: [authorA.id], available: 15, price: 39.99, year: 1999 });
     const first = await booksApiSteps.updateBook(bookId, payload);
     const second = await booksApiSteps.updateBook(bookId, payload);
@@ -115,7 +115,12 @@ test.describe('PUT /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, () =
   // TC-POS-PUT-009
   test('should update book with current calendar year and return 200', async ({ booksApiSteps }) => {
     const currentYear = new Date().getFullYear();
-    const payload = getRandomBookOverridePayload({ authors: [authorA.id], available: 5, price: 19.99, year: currentYear });
+    const payload = getRandomBookOverridePayload({
+      authors: [authorA.id],
+      available: 5,
+      price: 19.99,
+      year: currentYear,
+    });
     const updated = await booksApiSteps.updateBook(bookId, payload);
     expect(updated.year).toBe(currentYear);
   });
@@ -140,4 +145,3 @@ test.describe('PUT /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, () =
     expect(updated.price).toBe(49.99);
   });
 });
-

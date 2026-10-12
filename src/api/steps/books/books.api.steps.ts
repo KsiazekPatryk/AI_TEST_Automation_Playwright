@@ -1,6 +1,12 @@
 import { APIResponse, expect } from '@playwright/test';
 import { BooksAPIRequest } from '@api/requests/books/books.api.request';
-import { BookPayload, BookResponse, PatchBookPayload, PatchBookResponse, RestBookResponse } from '@api/models/book.model';
+import {
+  BookPayload,
+  BookResponse,
+  PatchBookPayload,
+  PatchBookResponse,
+  RestBookResponse,
+} from '@api/models/book.model';
 import { parseResponse } from '@utils/parse.response.utils';
 import { HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT } from '@api/consts/http.status.codes.const';
 import { BookSchema, PatchBookResponseSchema, RestBooksSchema } from '@api/schemas/book.schema';

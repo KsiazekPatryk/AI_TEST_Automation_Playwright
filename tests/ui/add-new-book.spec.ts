@@ -7,11 +7,37 @@ import { BookData } from '@ui/models/book.model';
 test.describe('Books Management — add new book', { tag: ['@ui', '@books-management'] }, () => {
   let author!: AuthorData;
   let book!: BookData;
+  let existingAuthorIds = new Set<number>();
+  let existingBookIds = new Set<number>();
 
-  test.beforeEach(async ({ authorsPage }) => {
+  test.beforeEach(async ({ authorsPage, authorsApiSteps, booksApiSteps }) => {
     author = createAuthorData();
     book = createBookData();
+    existingAuthorIds = new Set(
+      (await authorsApiSteps.getAll({ firstName: author.firstName, lastName: author.lastName })).map(({ id }) => id),
+    );
+    existingBookIds = new Set(
+      (await booksApiSteps.getBooks({ title: book.title }))
+        .filter((item) => item.title === book.title && item.id !== undefined)
+        .map(({ id }) => id as number),
+    );
     await authorsPage.navigate();
+  });
+
+  test.afterEach(async ({ authorsApiSteps, booksApiSteps }) => {
+    const matchingBooks = await booksApiSteps.getBooks({ title: book.title });
+    for (const item of matchingBooks) {
+      if (item.title === book.title && item.id !== undefined && !existingBookIds.has(item.id)) {
+        await booksApiSteps.deleteBook(item.id);
+      }
+    }
+
+    const matchingAuthors = await authorsApiSteps.getAll({ firstName: author.firstName, lastName: author.lastName });
+    for (const item of matchingAuthors) {
+      if (item.firstName === author.firstName && item.lastName === author.lastName && !existingAuthorIds.has(item.id)) {
+        await authorsApiSteps.delete(item.id);
+      }
+    }
   });
 
   test('should add a new author and a new book, then verify both appear', async ({

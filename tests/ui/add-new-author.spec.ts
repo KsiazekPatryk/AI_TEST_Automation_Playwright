@@ -4,17 +4,25 @@ import { faker } from '@faker-js/faker';
 test.describe('Authors page — add new author', { tag: ['@ui', '@authors'] }, () => {
   let firstName!: string;
   let lastName!: string;
+  let existingAuthorIds = new Set<number>();
 
-  test.beforeEach(async ({ authorsPage }) => {
+  test.beforeEach(async ({ authorsPage, authorsApiSteps }) => {
     firstName = faker.person.firstName();
     lastName = faker.person.lastName();
+    existingAuthorIds = new Set((await authorsApiSteps.getAll({ firstName, lastName })).map(({ id }) => id));
     await authorsPage.navigate();
   });
 
-  test('should fill the form and verify the new author card appears', async ({
-    authorsPage,
-    addNewAuthorForm,
-  }) => {
+  test.afterEach(async ({ authorsApiSteps }) => {
+    const matchingAuthors = await authorsApiSteps.getAll({ firstName, lastName });
+    for (const item of matchingAuthors) {
+      if (item.firstName === firstName && item.lastName === lastName && !existingAuthorIds.has(item.id)) {
+        await authorsApiSteps.delete(item.id);
+      }
+    }
+  });
+
+  test('should fill the form and verify the new author card appears', async ({ authorsPage, addNewAuthorForm }) => {
     // Assert — Authors Management page loaded
     await expect(authorsPage.heading).toBeVisible();
     await expect(authorsPage.firstExistingAuthorHeading).toBeVisible();

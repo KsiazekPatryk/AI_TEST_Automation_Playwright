@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as crypto from 'crypto';
-import type { FullConfig, FullResult, Reporter, Suite, TestCase, TestError, TestResult, TestStep } from '@playwright/test/reporter';
+import type { FullConfig, Reporter, TestCase, TestError, TestResult, TestStep } from '@playwright/test/reporter';
 import { capStackFrames, stripAnsi, toRelativePath, truncate } from './sanitize';
 import { ObservabilityEvent, StepError, StepTarget } from './types';
 
@@ -41,7 +41,7 @@ export default class ObservabilityReporter implements Reporter {
   private stepIndex = new Map<string, number>();
   private totals = { passed: 0, failed: 0, skipped: 0, flaky: 0 };
 
-  onBegin(config: FullConfig, _suite: Suite): void {
+  onBegin(config: FullConfig): void {
     if (!fs.existsSync(OUTPUT_DIR)) fs.mkdirSync(OUTPUT_DIR, { recursive: true });
     this.outFile = path.join(OUTPUT_DIR, `run-${this.runId}.jsonl`);
     this.write({
@@ -137,7 +137,7 @@ export default class ObservabilityReporter implements Reporter {
     });
   }
 
-  onEnd(_result: FullResult): void {
+  onEnd(): void {
     this.write({
       type: 'run',
       phase: 'end',

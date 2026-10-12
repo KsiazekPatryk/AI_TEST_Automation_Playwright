@@ -23,7 +23,10 @@ test.describe('PATCH /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, ()
   const createdBookIds: number[] = [];
   const createdAuthorIds: number[] = [];
 
-  async function createBookForPatch(authorsApiSteps: AuthorsAPISteps, booksApiSteps: BooksAPISteps): Promise<PatchSetup> {
+  async function createBookForPatch(
+    authorsApiSteps: AuthorsAPISteps,
+    booksApiSteps: BooksAPISteps,
+  ): Promise<PatchSetup> {
     const author = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.push(author.id);
 
@@ -53,11 +56,17 @@ test.describe('PATCH /books/{id} 2xx', { tag: ['@api', '@books', '@smoke'] }, ()
     const payload = getRandomBookOverridePayload({} satisfies PatchBookPayload);
 
     const requestSchemaResult = PatchBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    expect(
+      requestSchemaResult.success,
+      requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+    ).toBe(true);
 
     const responseBody = await booksApiSteps.patchBook(bookId, payload);
     const responseSchemaResult = PatchBookResponseSchema.safeParse(responseBody);
-    expect(responseSchemaResult.success, responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues)).toBe(true);
+    expect(
+      responseSchemaResult.success,
+      responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues),
+    ).toBe(true);
     expectNoSensitiveFields(responseBody);
 
     const updatedBook = await booksApiSteps.getBookById(bookId);
@@ -69,7 +78,10 @@ test.describe('PATCH /books/{id} runtime behavior', { tag: ['@api', '@books', '@
   const createdBookIds: number[] = [];
   const createdAuthorIds: number[] = [];
 
-  async function createBookForPatch(authorsApiSteps: AuthorsAPISteps, booksApiSteps: BooksAPISteps): Promise<PatchSetup> {
+  async function createBookForPatch(
+    authorsApiSteps: AuthorsAPISteps,
+    booksApiSteps: BooksAPISteps,
+  ): Promise<PatchSetup> {
     const author = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.push(author.id);
 
@@ -98,7 +110,13 @@ test.describe('PATCH /books/{id} runtime behavior', { tag: ['@api', '@books', '@
   }) => {
     const { authorId, bookId } = await createBookForPatch(authorsApiSteps, booksApiSteps);
     const updatedTitle = `Patched title ${bookId}`;
-    const payload = getRandomBookOverridePayload({ title: updatedTitle, authors: [authorId], year: 2026, price: 49.99, available: 10 });
+    const payload = getRandomBookOverridePayload({
+      title: updatedTitle,
+      authors: [authorId],
+      year: 2026,
+      price: 49.99,
+      available: 10,
+    });
 
     const response = await booksApiRequest.patchBook(bookId, payload);
 
@@ -107,7 +125,10 @@ test.describe('PATCH /books/{id} runtime behavior', { tag: ['@api', '@books', '@
 
     const responseBody = await parseResponse<BookResponse>(response);
     const responseSchemaResult = BookSchema.safeParse(responseBody);
-    expect(responseSchemaResult.success, responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues)).toBe(true);
+    expect(
+      responseSchemaResult.success,
+      responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues),
+    ).toBe(true);
     expect(responseBody.title).toBe(updatedTitle);
     expectNoSensitiveFields(responseBody);
 
@@ -120,7 +141,10 @@ test.describe('PATCH /books/{id} contract drift', { tag: ['@api', '@books', '@co
   const createdBookIds: number[] = [];
   const createdAuthorIds: number[] = [];
 
-  async function createBookForPatch(authorsApiSteps: AuthorsAPISteps, booksApiSteps: BooksAPISteps): Promise<PatchSetup> {
+  async function createBookForPatch(
+    authorsApiSteps: AuthorsAPISteps,
+    booksApiSteps: BooksAPISteps,
+  ): Promise<PatchSetup> {
     const author = await authorsApiSteps.create(getRandomAuthorPayload());
     createdAuthorIds.push(author.id);
 
@@ -151,7 +175,10 @@ test.describe('PATCH /books/{id} contract drift', { tag: ['@api', '@books', '@co
     const payload = getRandomBookOverridePayload({ metadata: { source: 'positive-contract-test' } });
 
     const requestSchemaResult = PatchBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    expect(
+      requestSchemaResult.success,
+      requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+    ).toBe(true);
 
     const response = await booksApiRequest.patchBook(bookId, payload);
 

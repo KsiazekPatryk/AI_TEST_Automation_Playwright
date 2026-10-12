@@ -48,9 +48,15 @@ test.describe('POST /books schema 2xx', { tag: ['@api', '@books', '@schema', '@s
     return authorIds;
   }
 
-  async function createBook(booksApiRequest: Pick<BooksAPIRequest, 'createBook'>, payload: BookPayload): Promise<BookResponse> {
+  async function createBook(
+    booksApiRequest: Pick<BooksAPIRequest, 'createBook'>,
+    payload: BookPayload,
+  ): Promise<BookResponse> {
     const requestSchemaResult = CreateBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    expect(
+      requestSchemaResult.success,
+      requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+    ).toBe(true);
 
     const response = await booksApiRequest.createBook(payload, JSON_HEADERS);
 
@@ -59,7 +65,10 @@ test.describe('POST /books schema 2xx', { tag: ['@api', '@books', '@schema', '@s
 
     const body = await parseResponse<BookResponse>(response);
     const responseSchemaResult = BookSchema.safeParse(body);
-    expect(responseSchemaResult.success, responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues)).toBe(true);
+    expect(
+      responseSchemaResult.success,
+      responseSchemaResult.success ? '' : JSON.stringify(responseSchemaResult.error.issues),
+    ).toBe(true);
     expect(body.id).toBeGreaterThan(0);
     expect(body.year).toBe(payload.year);
     expect(body.price).toBe(payload.price);
@@ -70,18 +79,27 @@ test.describe('POST /books schema 2xx', { tag: ['@api', '@books', '@schema', '@s
     return body;
   }
 
-  test('should return documented success status and JSON object response [TC-SCHEMA-BOOKS-POST-001]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should return documented success status and JSON object response [TC-SCHEMA-BOOKS-POST-001]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     const [authorId] = await createAuthors(authorsApiSteps, 1);
     const payload = getRandomBookOverridePayload({ authors: [authorId], ...DEFAULT_BOOK_POST_BASELINE });
 
     await createBook(booksApiRequest, payload);
   });
 
-  test('should send all required request schema fields while title remains optional [TC-SCHEMA-BOOKS-POST-002]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should send all required request schema fields while title remains optional [TC-SCHEMA-BOOKS-POST-002]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     test.fail(true, 'Live API rejects title omission even though OpenAPI does not mark title as required.');
 
     const [authorId] = await createAuthors(authorsApiSteps, 1);
-    const { title: _title, ...payload } = getRandomBookOverridePayload({ authors: [authorId], ...DEFAULT_BOOK_POST_BASELINE });
+    const { title: _title, ...payload } = getRandomBookOverridePayload({
+      authors: [authorId],
+      ...DEFAULT_BOOK_POST_BASELINE,
+    });
 
     expect(payload).toHaveProperty('authors');
     expect(payload).toHaveProperty('year');
@@ -90,12 +108,18 @@ test.describe('POST /books schema 2xx', { tag: ['@api', '@books', '@schema', '@s
     expect(payload).not.toHaveProperty('title');
 
     const requestSchemaResult = CreateBookPayloadSchema.safeParse(payload);
-    expect(requestSchemaResult.success, requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues)).toBe(true);
+    expect(
+      requestSchemaResult.success,
+      requestSchemaResult.success ? '' : JSON.stringify(requestSchemaResult.error.issues),
+    ).toBe(true);
 
     await createBook(booksApiRequest, payload);
   });
 
-  test('should validate request field types and formats [TC-SCHEMA-BOOKS-POST-003]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should validate request field types and formats [TC-SCHEMA-BOOKS-POST-003]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     const authorIds = await createAuthors(authorsApiSteps, 2);
     const payload = getRandomBookOverridePayload({ authors: authorIds, ...DEFAULT_BOOK_POST_BASELINE });
 
@@ -110,7 +134,10 @@ test.describe('POST /books schema 2xx', { tag: ['@api', '@books', '@schema', '@s
     await createBook(booksApiRequest, payload);
   });
 
-  test('should validate documented numeric boundaries in request schema [TC-SCHEMA-BOOKS-POST-004]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should validate documented numeric boundaries in request schema [TC-SCHEMA-BOOKS-POST-004]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     const [authorId] = await createAuthors(authorsApiSteps, 1);
     const payload = getRandomBookOverridePayload({ authors: [authorId], year: 2026, price: 0.01, available: 1 });
 

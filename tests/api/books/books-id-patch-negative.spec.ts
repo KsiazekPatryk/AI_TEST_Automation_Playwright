@@ -25,7 +25,10 @@ type DisposableBook = {
   readonly bookId: number;
 };
 
-async function createBookForPatch(authorsApiSteps: AuthorsAPISteps, booksApiSteps: BooksAPISteps): Promise<DisposableBook> {
+async function createBookForPatch(
+  authorsApiSteps: AuthorsAPISteps,
+  booksApiSteps: BooksAPISteps,
+): Promise<DisposableBook> {
   const author = await authorsApiSteps.create(getRandomAuthorPayload());
 
   try {

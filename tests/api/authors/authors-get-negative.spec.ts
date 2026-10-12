@@ -3,11 +3,7 @@ import { API_ENDPOINTS } from '@api/consts/api.endpoints.const';
 import { AuthorResponse } from '@api/models/author.model';
 import { getRandomAuthorPayload } from '@api/factories/author.factory';
 import { parseResponse } from '@utils/parse.response.utils';
-import {
-  HTTP_200_OK,
-  HTTP_405_METHOD_NOT_ALLOWED,
-  HTTP_406_NOT_ACCEPTABLE,
-} from '@api/consts/http.status.codes.const';
+import { HTTP_200_OK, HTTP_405_METHOD_NOT_ALLOWED, HTTP_406_NOT_ACCEPTABLE } from '@api/consts/http.status.codes.const';
 
 test.describe('GET /authors — negative scenarios @api @authors @regression', () => {
   // TC-NEG-003 requires Jane Doe and John Smith to exist so that:
@@ -58,7 +54,9 @@ test.describe('GET /authors — negative scenarios @api @authors @regression', (
     expect(body).toEqual([]);
   });
 
-  test('should return 200 and empty array when combined firstName+lastName filter matches no author', async ({ authorsApiRequest }) => {
+  test('should return 200 and empty array when combined firstName+lastName filter matches no author', async ({
+    authorsApiRequest,
+  }) => {
     const response = await authorsApiRequest.getAll({ firstName: 'Jane', lastName: 'Smith' });
 
     expect(response.status()).toBe(HTTP_200_OK);
@@ -98,7 +96,9 @@ test.describe('GET /authors — negative scenarios @api @authors @regression', (
     expect(response.status()).toBe(HTTP_406_NOT_ACCEPTABLE);
   });
 
-  test('should return 200 and an array when firstName query param is an empty string', async ({ authorsApiRequest }) => {
+  test('should return 200 and an array when firstName query param is an empty string', async ({
+    authorsApiRequest,
+  }) => {
     const response = await authorsApiRequest.getAll({ firstName: '' });
 
     expect(response.status()).toBe(HTTP_200_OK);

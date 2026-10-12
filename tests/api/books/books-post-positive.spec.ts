@@ -39,7 +39,10 @@ test.describe('POST /books 2xx positive scenarios', { tag: ['@api', '@books', '@
     return authorIds;
   }
 
-  async function createBook(booksApiRequest: Pick<BooksAPIRequest, 'createBook'>, payload: BookPayload): Promise<BookResponse> {
+  async function createBook(
+    booksApiRequest: Pick<BooksAPIRequest, 'createBook'>,
+    payload: BookPayload,
+  ): Promise<BookResponse> {
     const response = await booksApiRequest.createBook(payload, JSON_HEADERS);
 
     expect(response.status()).toBe(HTTP_201_CREATED);
@@ -58,7 +61,10 @@ test.describe('POST /books 2xx positive scenarios', { tag: ['@api', '@books', '@
     return body;
   }
 
-  test('should create a book with all documented request properties [TC-POS-BOOKS-POST-001]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should create a book with all documented request properties [TC-POS-BOOKS-POST-001]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     const [authorId] = await createAuthors(authorsApiSteps, 1);
     const payload = getRandomBookOverridePayload({ authors: [authorId], ...DEFAULT_BOOK_POST_BASELINE });
 
@@ -71,18 +77,27 @@ test.describe('POST /books 2xx positive scenarios', { tag: ['@api', '@books', '@
     expect(payload).toHaveProperty('available');
   });
 
-  test('should create a book without optional title [TC-POS-BOOKS-POST-002]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should create a book without optional title [TC-POS-BOOKS-POST-002]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     test.fail(true, 'Live API rejects title omission even though OpenAPI does not mark title as required.');
 
     const [authorId] = await createAuthors(authorsApiSteps, 1);
-    const { title: _title, ...payload } = getRandomBookOverridePayload({ authors: [authorId], ...DEFAULT_BOOK_POST_BASELINE });
+    const { title: _title, ...payload } = getRandomBookOverridePayload({
+      authors: [authorId],
+      ...DEFAULT_BOOK_POST_BASELINE,
+    });
 
     expect(payload).not.toHaveProperty('title');
 
     await createBook(booksApiRequest, payload);
   });
 
-  test('should create a book with multiple unique authors [TC-POS-BOOKS-POST-003]', async ({ authorsApiSteps, booksApiRequest }) => {
+  test('should create a book with multiple unique authors [TC-POS-BOOKS-POST-003]', async ({
+    authorsApiSteps,
+    booksApiRequest,
+  }) => {
     const authorIds = await createAuthors(authorsApiSteps, 2);
     const payload = getRandomBookOverridePayload({ authors: authorIds, ...DEFAULT_BOOK_POST_BASELINE });
 
@@ -119,4 +134,3 @@ test.describe('POST /books 2xx positive scenarios', { tag: ['@api', '@books', '@
     });
   });
 });
-
