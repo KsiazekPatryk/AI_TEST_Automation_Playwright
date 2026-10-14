@@ -364,6 +364,16 @@ GitHub Actions runs type checking, lint, formatting checks, and the full API/UI/
 
 Playwright reports and observability logs are retained as workflow artifacts for seven days. Public GitHub Pages publication is opt-in: set the repository Actions variable `PUBLISH_REPORT=true` only when report contents are safe to expose, then enable Pages with GitHub Actions as the deployment source. Require the `test` job as a status check in branch protection. The test suite exercises an external application, so this workflow does not deploy that application.
 
+#### Agent-Assisted CI/CD Flow
+
+GitHub Copilot agents support test development interactively in VS Code; GitHub Actions does **not** invoke AI agents or generate code. The implemented delivery flow is:
+
+1. Use Planner and Writer agents to plan and create tests, then Refactor and Code Review agents to improve and review them.
+2. Submit the resulting changes through a pull request. GitHub Actions runs type checking, lint and format checks, then executes the full API/UI/E2E suite as an independent quality gate.
+3. Inspect the Playwright HTML report and JSONL observability log from the workflow artifacts when diagnosing failures. Report publication to GitHub Pages is optional and must be enabled deliberately.
+
+Although `npm run test:affected` is available for dependency-based local test selection, the current CI workflow runs `npm run test:all` and does not use affected-test selection. This keeps pull request validation comprehensive.
+
 #### Test Tagging
 
 Tests are tagged for easy filtering:
@@ -803,6 +813,16 @@ OPENAPI_SPEC=docs/openapi/bookstoreapi.openapi.json
 GitHub Actions uruchamia sprawdzenie typów, lint, formatowanie oraz pełny zestaw API/UI/E2E dla pull requestów do `main`, pushy do `main` i `CI/CD` oraz ręcznych uruchomień. W zmiennych repozytorium GitHub Actions można ustawić `API_URL` i `UI_URL` na dedykowane środowisko testowe; w przypadku braku konfiguracji workflow używa domyślnych środowisk demonstracyjnych (`https://bookstoreapi.up.railway.app` i `https://ksiegarnia.up.railway.app`).
 
 Raporty Playwright i logi obserwowalności są przechowywane jako artefakty workflow przez siedem dni. Publiczna publikacja raportu w GitHub Pages po pushu do `main` jest opcjonalna: ustaw zmienną repozytorium `PUBLISH_REPORT=true` tylko wtedy, gdy zawartość raportu może być publiczna, a następnie włącz GitHub Pages ze źródłem GitHub Actions. Ustaw job `test` jako wymagany status check w branch protection. Repozytorium testuje zewnętrzną aplikację, więc workflow jej nie wdraża.
+
+#### Przepływ CI/CD wspierany przez agentów
+
+Agenci GitHub Copilot wspierają tworzenie testów interaktywnie w VS Code; GitHub Actions **nie uruchamia** agentów AI ani nie generuje kodu. Zaimplementowany przepływ wygląda następująco:
+
+1. Agenci Planner i Writer pomagają zaplanować i utworzyć testy, a agenci Refactor i Code Review wspierają ich refaktoryzację oraz przegląd.
+2. Zmiany trafiają do pull requesta. GitHub Actions niezależnie sprawdza typy, lint i formatowanie, a następnie uruchamia pełny zestaw API/UI/E2E jako bramkę jakości.
+3. Przy diagnozowaniu błędów można pobrać raport HTML Playwright i log obserwowalności JSONL z artefaktów workflow. Publikacja raportu w GitHub Pages jest opcjonalna i wymaga świadomego włączenia.
+
+Polecenie `npm run test:affected` umożliwia selekcję testów zależnych od zmian, ale obecny workflow CI uruchamia `npm run test:all` i nie korzysta z tej selekcji. Dzięki temu walidacja pull requestów obejmuje pełny zestaw testów.
 
 ### Tagowanie testów
 
